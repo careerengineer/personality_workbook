@@ -1,477 +1,817 @@
 import React, { useState } from 'react';
-import { Download, FileText, User, Award, ChevronRight, HelpCircle, Lock } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Download, Lock, HelpCircle, Eye, Edit3 } from 'lucide-react';
 
-function CareerStatementGenerator() {
+const PersonalityWorkbook = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [showError, setShowError] = useState(false);
-  
-  const SECRET_PASSWORD = 'CareerEngineer!';
+  const [showIntro, setShowIntro] = useState(true);
+  const [currentPhase, setCurrentPhase] = useState('round1');
+  const [currentStep, setCurrentStep] = useState(0);
+  const [selectedSteps, setSelectedSteps] = useState([]);
+  const [showGuide, setShowGuide] = useState({});
+  const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const [showRawAnswers, setShowRawAnswers] = useState(false);
+  const [finalText, setFinalText] = useState('');
+
+  const [basicInfo, setBasicInfo] = useState({
+    industry: '',
+    position: '',
+    company: ''
+  });
+
+  const [answers, setAnswers] = useState({});
 
   const handleLogin = () => {
-    if (password === SECRET_PASSWORD) {
+    if (password === 'career2025') {
       setIsAuthenticated(true);
       setShowError(false);
     } else {
       setShowError(true);
-      setTimeout(() => setShowError(false), 3000);
     }
   };
 
-  const [formData, setFormData] = useState({
-    personalInfo: {
-      name: '',
-      birth: '',
-      phone: '',
-      email: '',
-      address: '',
-      company: ''
+  const round1Steps = [
+    { id: 0, title: '기본 정보 입력', subtitle: '지원할 산업, 직무, 회사를 입력하세요' },
+    {
+      id: 1,
+      title: 'STEP 1: 핵심 성격 파악 및 메시지 설정',
+      subtitle: '주변 사람들이 나를 어떻게 평가하나요? (3가지)',
+      questions: [
+        {
+          id: 'q1_1_1',
+          label: 'Q1.1.1. 주변 사람들이 나를 어떻게 평가하나요? (3가지)',
+          hint: '실제로 들어본 평가만 작성하세요.',
+          placeholder: '예: 가족, 친구, 선후배가 자주 하는 말은?',
+          rows: 4
+        },
+        {
+          id: 'q1_1_2',
+          label: 'Q1.1.2. 가족, 친구, 선후배가 자주 하는 말은?',
+          hint: '팀 프로젝트 후 받은 피드백은?',
+          placeholder: '예: 나에게 자주 부탁하는 일의 공통점은?',
+          rows: 3
+        },
+        {
+          id: 'q1_1_3',
+          label: 'Q1.1.3. 나에게 자주 부탁하는 일의 공통점은?',
+          hint: '즉석자가진단: “누가, 언제, 어떤 상황에서 그렇게 말했나요?”에 답변 가능한가?',
+          placeholder: '예: 가족, 친구, 선후배가 자주 하는 말은?',
+          rows: 3
+        }
+      ]
     },
-    position: '',
-    years: '',
-    education: [{ school: '', major: '', degree: '', period: '', status: '' }],
-    oneLineIntro: '',
-    competency1: '',
-    competency2: '',
-    competency3: '',
-    majorProject: '',
-    techStack: '',
-    careers: [{ company: '', department: '', position: '', period: '', isCurrentJob: false, role: '' }],
-    toolSkills: [{ tools: '', proficiency: '' }],
-    languageSkills: [{ languages: '', proficiency: '' }],
-    certifications: [{ name: '', issuer: '', date: '' }],
-    additionalStrength: '',
-    publications: [{ title: '', journal: '', date: '', author: '', volume: '', issue: '', pages: '', doi: '' }],
-    projects: [{ 
-      company: '', 
-      name: '', 
-      period: '', 
-      background: '', 
-      goals: '', 
-      roleAndTasks: '', 
-      achievement: '', 
-      insights: '' 
-    }]
-  });
-
-  const updatePersonalInfo = (field, value) => {
-    setFormData({ 
-      ...formData, 
-      personalInfo: { ...formData.personalInfo, [field]: value } 
-    });
-  };
-
-  const addEducation = () => {
-    setFormData({
-      ...formData,
-      education: [...formData.education, { school: '', major: '', degree: '', period: '', status: '' }]
-    });
-  };
-
-  const removeEducation = (index) => {
-    const newEducation = formData.education.filter((_, i) => i !== index);
-    setFormData({ ...formData, education: newEducation });
-  };
-
-  const updateEducation = (index, field, value) => {
-    const newEducation = [...formData.education];
-    newEducation[index][field] = value;
-    setFormData({ ...formData, education: newEducation });
-  };
-
-  const addCareer = () => {
-    setFormData({
-      ...formData,
-      careers: [...formData.careers, { company: '', department: '', position: '', period: '', isCurrentJob: false, role: '' }]
-    });
-  };
-
-  const removeCareer = (index) => {
-    const newCareers = formData.careers.filter((_, i) => i !== index);
-    setFormData({ ...formData, careers: newCareers });
-  };
-
-  const updateCareer = (index, field, value) => {
-    const newCareers = [...formData.careers];
-    newCareers[index][field] = value;
-    setFormData({ ...formData, careers: newCareers });
-  };
-
-  const addToolSkill = () => {
-    setFormData({
-      ...formData,
-      toolSkills: [...formData.toolSkills, { tools: '', proficiency: '' }]
-    });
-  };
-
-  const removeToolSkill = (index) => {
-    const newSkills = formData.toolSkills.filter((_, i) => i !== index);
-    setFormData({ ...formData, toolSkills: newSkills });
-  };
-
-  const updateToolSkill = (index, field, value) => {
-    const newSkills = [...formData.toolSkills];
-    newSkills[index][field] = value;
-    setFormData({ ...formData, toolSkills: newSkills });
-  };
-
-  const addLanguageSkill = () => {
-    setFormData({
-      ...formData,
-      languageSkills: [...formData.languageSkills, { languages: '', proficiency: '' }]
-    });
-  };
-
-  const removeLanguageSkill = (index) => {
-    const newSkills = formData.languageSkills.filter((_, i) => i !== index);
-    setFormData({ ...formData, languageSkills: newSkills });
-  };
-
-  const updateLanguageSkill = (index, field, value) => {
-    const newSkills = [...formData.languageSkills];
-    newSkills[index][field] = value;
-    setFormData({ ...formData, languageSkills: newSkills });
-  };
-
-  const addCertification = () => {
-    setFormData({
-      ...formData,
-      certifications: [...formData.certifications, { name: '', issuer: '', date: '' }]
-    });
-  };
-
-  const removeCertification = (index) => {
-    const newCerts = formData.certifications.filter((_, i) => i !== index);
-    setFormData({ ...formData, certifications: newCerts });
-  };
-
-  const updateCertification = (index, field, value) => {
-    const newCerts = [...formData.certifications];
-    newCerts[index][field] = value;
-    setFormData({ ...formData, certifications: newCerts });
-  };
-
-  const addPublication = () => {
-    setFormData({
-      ...formData,
-      publications: [...formData.publications, { title: '', journal: '', date: '', author: '', volume: '', issue: '', pages: '', doi: '' }]
-    });
-  };
-
-  const removePublication = (index) => {
-    const newPubs = formData.publications.filter((_, i) => i !== index);
-    setFormData({ ...formData, publications: newPubs });
-  };
-
-  const updatePublication = (index, field, value) => {
-    const newPubs = [...formData.publications];
-    newPubs[index][field] = value;
-    setFormData({ ...formData, publications: newPubs });
-  };
-
-  const addProject = () => {
-    setFormData({
-      ...formData,
-      projects: [...formData.projects, { 
-        company: '', 
-        name: '', 
-        period: '', 
-        background: '', 
-        goals: '', 
-        roleAndTasks: '', 
-        achievement: '', 
-        insights: '' 
-      }]
-    });
-  };
-
-  const removeProject = (index) => {
-    const newProjects = formData.projects.filter((_, i) => i !== index);
-    setFormData({ ...formData, projects: newProjects });
-  };
-
-  const updateProject = (index, field, value) => {
-    const newProjects = [...formData.projects];
-    newProjects[index][field] = value;
-    setFormData({ ...formData, projects: newProjects });
-  };
-
-  const generateWordDocument = () => {
-    let html = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <style>
-          body {
-            font-family: 'Malgun Gothic', Arial, sans-serif;
-            line-height: 1.6;
-            margin: 40px;
-            font-size: 12pt;
-            color: #333;
-          }
-          h1 {
-            text-align: center;
-            font-size: 20pt;
-            border-bottom: 2px solid #000;
-            padding-bottom: 10px;
-            margin-bottom: 30px;
-          }
-          h2 {
-            font-size: 14pt;
-            margin-top: 30px;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #000;
-            padding-bottom: 5px;
-            color: #1a3c6e;
-          }
-          h3 {
-            font-size: 12pt;
-            margin-top: 20px;
-            margin-bottom: 10px;
-            font-weight: bold;
-          }
-          .section-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-          }
-          .section-table th, .section-table td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: left;
-            vertical-align: top;
-          }
-          .section-table th {
-            background-color: #f5f5f5;
-            font-weight: bold;
-            width: 150px;
-          }
-          .no-border {
-            border: none;
-          }
-          .bullet-list {
-            margin: 0;
-            padding-left: 20px;
-            list-style-type: disc;
-          }
-          .bullet-list li {
-            margin-bottom: 5px;
-          }
-          p {
-            margin: 5px 0;
-          }
-          .footer {
-            margin-top: 50px;
-            padding-top: 20px;
-            border-top: 1px solid #ccc;
-            text-align: center;
-            font-size: 10pt;
-            color: #666;
-          }
-        </style>
-      </head>
-      <body>
-        <h1>경력기술서</h1>
-    `;
-
-    // Personal Info Section
-    html += `
-      <h2>인적사항</h2>
-      <table class="section-table">
-        <tr><th>성명</th><td>${formData.personalInfo.name}</td></tr>
-        <tr><th>생년월일</th><td>${formData.personalInfo.birth}</td></tr>
-        <tr><th>연락처</th><td>${formData.personalInfo.phone}</td></tr>
-        <tr><th>이메일</th><td>${formData.personalInfo.email}</td></tr>
-        <tr><th>주소</th><td>${formData.personalInfo.address}</td></tr>
-        <tr><th>지원 직무</th><td>${formData.position}</td></tr>
-        <tr><th>지원 회사</th><td>${formData.personalInfo.company}</td></tr>
-        <tr><th>총 경력</th><td>${formData.years}년</td></tr>
-      </table>
-    `;
-
-    // Education Section
-    html += `<h2>학력사항</h2>`;
-    if (formData.education.length > 0) {
-      html += `<table class="section-table">`;
-      html += `<tr><th>학교명</th><th>전공</th><th>학위</th><th>재학 기간</th><th>상태</th></tr>`;
-      formData.education.forEach(edu => {
-        html += `
-          <tr>
-            <td>${edu.school}</td>
-            <td>${edu.major}</td>
-            <td>${edu.degree}</td>
-            <td>${edu.period}</td>
-            <td>${edu.status}</td>
-          </tr>
-        `;
-      });
-      html += `</table>`;
+    {
+      id: 2,
+      title: 'STEP 2: 장점의 구체적 발현 양상',
+      subtitle: '장점의 구체적 발현 양상',
+      questions: [
+        {
+          id: 'q1_2_1',
+          label: 'Q1.2.1. 장점의 구체적 발현 양상은?',
+          hint: '측정 가능하고 검증 가능한 행동 패턴',
+          placeholder: '예: 계획적/체계적: 철저한 준비 vs 즉흥 대응 약함',
+          rows: 3
+        },
+        {
+          id: 'q1_2_2',
+          label: 'Q1.2.2. 구체적 행동 패턴과 발현 양상?',
+          hint: '구체적 경험과 행동으로 입증 가능한 패턴',
+          placeholder: '예: 꼼꼼함/세밀함: 정확성 높음 vs 처리 속도',
+          rows: 3
+        },
+        {
+          id: 'q1_2_3',
+          label: 'Q1.2.3. 장점 유형과 연관된 단점?',
+          hint: '장단점 균형 매칭표 참조',
+          placeholder: '예: 추진력/실행력: 빠른 실행 vs 충분한 검토',
+          rows: 3
+        },
+        {
+          id: 'q1_2_4',
+          label: 'Q1.2.4. ⭐ 위 세 가지를 하나로 연결한 핵심 문장을 작성하세요',
+          hint: '진정성 원칙 + 구체성 원칙',
+          placeholder: '예: 창의적/혁신적: 새로운 시도 vs 실현 가능성',
+          rows: 2
+        }
+      ]
+    },
+    {
+      id: 3,
+      title: 'STEP 3: 장점의 실제 기여와 성과',
+      subtitle: '장점의 실제 기여와 성과',
+      questions: [
+        {
+          id: 'q1_3_1',
+          label: 'Q1.3.1. 장점의 실제 기여와 성과를 묘사해주세요',
+          hint: '시간, 장소, 상황의 디테일',
+          placeholder: '예: 협력적/친화력: 조화 중시 vs 자기 의견',
+          rows: 3
+        },
+        {
+          id: 'q1_3_2',
+          label: 'Q1.3.2. 장점의 실제 기여와 성과에서 어떤 감정이나 생각이 들었나요?',
+          hint: '내면의 변화와 깨달음',
+          placeholder: '예: 구체적 기여와 성과',
+          rows: 3
+        },
+        {
+          id: 'q1_3_3',
+          label: 'Q1.3.3. 이 경험이 나의 어떤 가치관과 연결되나요?',
+          hint: '개인의 신념이나 추구하는 가치',
+          placeholder: '예: 실제 기여와 성과',
+          rows: 3
+        }
+      ]
+    },
+    {
+      id: 4,
+      title: 'STEP 4: 단점의 솔직한 인정과 영향',
+      subtitle: '단점의 솔직한 인정과 영향',
+      questions: [
+        {
+          id: 'q1_4_1',
+          label: 'Q1.4.1. 단점의 솔직한 인정과 영향은?',
+          hint: '시간 순서대로 단점 인정 과정',
+          placeholder: '예: 솔직한 인정과 영향',
+          rows: 3
+        },
+        {
+          id: 'q1_4_2',
+          label: 'Q1.4.2. 가장 많은 시간과 노력을 투자한 구체적 인정은?',
+          hint: '가장 열심히 한 활동과 그 영향',
+          placeholder: '예: 솔직한 인정과 영향',
+          rows: 3
+        },
+        {
+          id: 'q1_4_3',
+          label: 'Q1.4.3. 이 과정에서 얻은 가장 중요한 배움이나 깨달음은?',
+          hint: '실패와 성공을 통한 성장',
+          placeholder: '예: 솔직한 인정과 영향',
+          rows: 3
+        }
+      ]
+    },
+    {
+      id: 5,
+      title: 'STEP 5: 단점 극복을 위한 구체적 노력',
+      subtitle: '단점 극복을 위한 구체적 노력',
+      questions: [
+        {
+          id: 'q1_5_1',
+          label: 'Q1.5.1. 단점 극복을 위한 구체적 노력은?',
+          hint: '극복 발견한 구체적 경로',
+          placeholder: '예: 구체적 노력',
+          rows: 3
+        },
+        {
+          id: 'q1_5_2',
+          label: 'Q1.5.2. 처음 이 극복을 알았을 때 어떤 인상을 받았나요?',
+          hint: '첫 인상과 끌린 이유',
+          placeholder: '예: 구체적 노력',
+          rows: 3
+        },
+        {
+          id: 'q1_5_3',
+          label: 'Q1.5.3. 다른 극복과 비교했을 때 이 극복만의 특별한 점은?',
+          hint: '차별화된 강점과 매력 포인트',
+          placeholder: '예: 구체적 노력',
+          rows: 3
+        }
+      ]
+    },
+    {
+      id: 6,
+      title: 'STEP 6: 성장하는 균형감과 시너지',
+      subtitle: '성장하는 균형감과 시너지',
+      questions: [
+        {
+          id: 'q1_6_1',
+          label: 'Q1.6.1. 성장하는 균형감과 시너지?',
+          hint: '보유 균형과 증명 가능한 경험',
+          placeholder: '예: 성장하는 균형감과 시너지',
+          rows: 3
+        },
+        {
+          id: 'q1_6_2',
+          label: 'Q1.6.2. 그 균형을 보여주는 가장 강력한 경험은?',
+          hint: '구체적 프로젝트나 성과',
+          placeholder: '예: 성장하는 균형감과 시너지',
+          rows: 3
+        }
+      ]
     }
+  ];
 
-    // Core Competencies Section
-    html += `
-      <h2>핵심역량</h2>
-      <table class="section-table">
-        <tr><th>1줄 포지셔닝</th><td>${formData.oneLineIntro.replace(/\n/g, '<br>')}</td></tr>
-        <tr><th>핵심역량 1</th><td>${formData.competency1.replace(/\n/g, '<br>')}</td></tr>
-        <tr><th>핵심역량 2</th><td>${formData.competency2.replace(/\n/g, '<br>')}</td></tr>
-        <tr><th>핵심역량 3</th><td>${formData.competency3.replace(/\n/g, '<br>')}</td></tr>
-        <tr><th>대표 성과</th><td>${formData.majorProject.replace(/\n/g, '<br>')}</td></tr>
-        <tr><th>핵심 기술 스택</th><td>${formData.techStack.replace(/\n/g, '<br>')}</td></tr>
-      </table>
-    `;
+  const round2Questions = {
+    1: [
+      {
+        id: 'q2_1_1',
+        label: 'Q2.1.1. 주변 사람들이 나를 어떻게 평가하나요? (3가지)',
+        hint: '그 순간의 디테일한 상황과 감정을 생생하게 표현',
+        guide: {
+          description: '답변 가이드: 실제로 들어본 평가만 작성하세요.',
+          diagnosis: '즉석자가진단: "누가, 언제, 어떤 상황에서 그렇게 말했나요?”에 답변 가능한가?',
+          helpQuestions: [
+            '가족, 친구, 선후배가 자주 하는 말은?',
+            '팀 프로젝트 후 받은 피드백은?',
+            '나에게 자주 부탁하는 일의 공통점은?'
+          ],
+          ifDifficult: '타인 평가를 모르겠을 때 → 참고자료 1장 1.2절 “타인의 시선으로 보기”',
+          ifStillDifficult: '평범한 성격이라고 느껴질 때 → 참고자료 1장 “평범한 성격의 재발견법”',
+          example: '예: 가족, 친구, 선후배가 자주 하는 말은?'
+        },
+        placeholder: '예: 가족, 친구, 선후배가 자주 하는 말은?',
+        rows: 4
+      },
+      {
+        id: 'q2_1_2',
+        label: 'Q2.1.2. 팀 프로젝트 후 받은 피드백은?',
+        hint: '변화의 구체적인 before & after 비교',
+        guide: {
+          description: '답변 가이드: 변화의 구체적인 before & after 비교',
+          diagnosis: '즉석자가진단: "구체적으로 뭐가 달라졌어요?"라고 물으면 3가지 이상 답변 가능한가?',
+          helpQuestions: [
+            '일상의 관심사가 어떻게 바뀌었나요?',
+            '시간을 쓰는 방식이 어떻게 변했나요?',
+            '미래 계획이 어떻게 수정되었나요?'
+          ],
+          ifDifficult: '경험정리의 “타인평가” 시트나 STAR 분석에서 반복적으로 나타나는 행동 패턴을 확인하세요.',
+          ifStillDifficult: '최소한 검색 기록이 바뀌었을 것입니다. 작은 변화라도 구체적으로 적어보세요.',
+          example: '예: 팀 프로젝트 후 받은 피드백은?'
+        },
+        placeholder: '예: 팀 프로젝트 후 받은 피드백은?',
+        rows: 4
+      },
+      {
+        id: 'q2_1_3',
+        label: 'Q2.1.3. 나에게 자주 부탁하는 일의 공통점은?',
+        hint: '계기의 결정적 중요성을 역설적으로 강조',
+        guide: {
+          description: '답변 가이드: 계기의 결정적 중요성을 역설적으로 강조',
+          diagnosis: '즉석자가진단: "다른 진로를 생각해본 적 있어요?"라고 물으면 답변 가능한가?',
+          helpQuestions: [
+            '다른 진로를 고려했었나요?',
+            '그 계기가 왜 결정적이었나요?',
+            '다른 가능성과 비교했을 때 이 길을 선택한 이유는?'
+          ],
+          ifDifficult: '이전에 막연히 생각했던 진로를 떠올려보세요.',
+          ifStillDifficult: '주변 친구들이 선택한 일반적인 진로를 생각해보세요.',
+          example: '예: 나에게 자주 부탁하는 일의 공통점은?'
+        },
+        placeholder: '예: 나에게 자주 부탁하는 일의 공통점은?',
+        rows: 4
+      }
+    ],
+    2: [
+      {
+        id: 'q2_2_1',
+        label: 'Q2.2.1. 장점의 구체적 발현 양상은?',
+        hint: '어려움과 극복 과정을 구체적으로 서술',
+        guide: {
+          description: '답변 가이드: 어려움과 극복 과정을 구체적으로 서술',
+          diagnosis: '즉석자가진단: "왜 그게 어려웠어요?"라고 물으면 상세 설명 가능한가?',
+          helpQuestions: [
+            '어떤 점이 가장 어려웠나요?',
+            '포기하고 싶었던 순간은?',
+            '어떻게 극복했나요?'
+          ],
+          ifDifficult: '실패했던 경험도 의미가 있습니다.',
+          ifStillDifficult: '처음 해본 것은 모두 도전입니다.',
+          example: '예: 장점의 구체적 발현 양상은?'
+        },
+        placeholder: '예: 장점의 구체적 발현 양상은?',
+        rows: 4
+      },
+      {
+        id: 'q2_2_2',
+        label: 'Q2.2.2. 구체적 행동 패턴과 발현 양상?',
+        hint: '측정 가능하고 검증 가능한 구체적 성과',
+        guide: {
+          description: '답변 가이드: 측정 가능하고 검증 가능한 구체적 성과',
+          diagnosis: '즉석자가진단: "그 성과를 어떻게 증명할 수 있어요?"',
+          helpQuestions: [
+            '만든 포트폴리오나 프로젝트가 있나요?',
+            '받은 인정이나 피드백은?',
+            '수치로 표현할 수 있는 성과는?'
+          ],
+          ifDifficult: '작은 성과도 의미가 있습니다.',
+          ifStillDifficult: '학습 기록이나 노트도 결과물입니다.',
+          example: '예: 구체적 행동 패턴과 발현 양상?'
+        },
+        placeholder: '예: 구체적 행동 패턴과 발현 양상?',
+        rows: 4
+      },
+      {
+        id: 'q2_2_3',
+        label: 'Q2.2.3. 장점 유형과 연관된 단점?',
+        hint: '실패와 극복이 성장의 증거',
+        guide: {
+          description: '답변 가이드: 실패와 극복이 성장의 증거',
+          diagnosis: '즉석자가진단: "그 실패에서 뭘 배웠어요?"',
+          helpQuestions: [
+            '예상과 다르게 진행된 부분은?',
+            '실패의 원인은 무엇이었나요?',
+            '그 실패를 어떻게 극복했나요?'
+          ],
+          ifDifficult: '모든 새로운 도전에는 시행착오가 따릅니다.',
+          ifStillDifficult: '작은 실수도 의미가 있습니다.',
+          example: '예: 장점 유형과 연관된 단점?'
+        },
+        placeholder: '예: 장점 유형과 연관된 단점?',
+        rows: 4
+      }
+    ],
+    3: [
+      {
+        id: 'q2_3_1',
+        label: 'Q2.3.1. 장점의 실제 기여와 성과를 묘사해주세요',
+        hint: '현실적이고 구체적인 업무 일과 묘사',
+        guide: {
+          description: '답변 가이드: 현실적이고 구체적인 업무 일과 묘사',
+          diagnosis: '즉석자가진단: "그 중 가장 어려운 업무는 뭘까요?"',
+          helpQuestions: [
+            '오전에는 주로 무슨 업무를?',
+            '협업은 누구와 어떻게?',
+            '가장 시간이 많이 걸리는 업무는?'
+          ],
+          ifDifficult: '현직자 인터뷰나 브런치 글을 참고하세요.',
+          ifStillDifficult: '일반적인 업무 흐름이라도 구체화하세요.',
+          example: '예: 장점의 실제 기여와 성과를 묘사해주세요'
+        },
+        placeholder: '예: 장점의 실제 기여와 성과를 묘사해주세요',
+        rows: 4
+      },
+      {
+        id: 'q2_3_2',
+        label: 'Q2.3.2. 장점의 실제 기여와 성과에서 어떤 감정이나 생각이 들었나요?',
+        hint: '객관적 자기 평가와 발전 가능성',
+        guide: {
+          description: '답변 가이드: 객관적 자기 평가와 발전 가능성',
+          diagnosis: '즉석자가진단: "그 역량을 어떻게 키울 건가요?"',
+          helpQuestions: [
+            '필수 역량 top 3는?',
+            '각각의 현재 수준은?',
+            '부족한 부분을 어떻게 채울 것인가?'
+          ],
+          ifDifficult: '채용공고나 직무 소개서를 참고하세요.',
+          ifStillDifficult: '일반적인 역량이라도 솔직하게 평가하세요.',
+          example: '예: 장점의 실제 기여와 성과에서 어떤 감정이나 생각이 들었나요?'
+        },
+        placeholder: '예: 장점의 실제 기여와 성과에서 어떤 감정이나 생각이 들었나요?',
+        rows: 4
+      },
+      {
+        id: 'q2_3_3',
+        label: 'Q2.3.3. 이 경험이 나의 어떤 가치관과 연결되나요?',
+        hint: '우선순위가 명확하고 실행 가능한 계획',
+        guide: {
+          description: '답변 가이드: 우선순위가 명확하고 실행 가능한 계획',
+          diagnosis: '즉석자가진단: "첫 달에는 뭘 할 건가요?"',
+          helpQuestions: [
+            '우선순위를 정한다면?',
+            '각각 언제까지, 어떻게?',
+            '이미 시작한 것이 있다면?'
+          ],
+          ifDifficult: '온라인 강의, 자격증, 독서, 스터디 등을 떠올려보세요.',
+          ifStillDifficult: '입사 후 배울 수 있는 것과 지금 준비할 수 있는 것을 구분하세요.',
+          example: '예: 이 경험이 나의 어떤 가치관과 연결되나요?'
+        },
+        placeholder: '예: 이 경험이 나의 어떤 가치관과 연결되나요?',
+        rows: 4
+      }
+    ],
+    4: [
+      {
+        id: 'q2_4_1',
+        label: 'Q2.4.1. 단점의 솔직한 인정과 영향은?',
+        hint: '구체적인 사실과 날짜, 내용 포함',
+        guide: {
+          description: '답변 가이드: 구체적인 사실과 날짜, 내용 포함',
+          diagnosis: '즉석자가진단: "그게 왜 중요한가요?"',
+          helpQuestions: [
+            '신규 서비스나 사업 확장은?',
+            '조직 문화나 제도의 변화는?',
+            '업계에서의 포지션 변화는?'
+          ],
+          ifDifficult: '회사 홈페이지 뉴스룸을 확인하세요.',
+          ifStillDifficult: '기본적인 회사 정보라도 구체화하세요.',
+          example: '예: 단점의 솔직한 인정과 영향은?'
+        },
+        placeholder: '예: 단점의 솔직한 인정과 영향은?',
+        rows: 4
+      },
+      {
+        id: 'q2_4_2',
+        label: 'Q2.4.2. 가장 많은 시간과 노력을 투자한 구체적 인정은?',
+        hint: '다른 회사와 차별화되는 점',
+        guide: {
+          description: '답변 가이드: 다른 회사와 차별화되는 점',
+          diagnosis: '즉석자가진단: "왜 그게 당신에게 중요해요?"',
+          helpQuestions: [
+            '회사의 핵심 가치는?',
+            '업무 방식의 특징은?',
+            '조직 문화의 차별점은?'
+          ],
+          ifDifficult: '회사 홈페이지의 "About Us"를 확인하세요.',
+          ifStillDifficult: '일반적인 키워드라도 회사와 연결하세요.',
+          example: '예: 가장 많은 시간과 노력을 투자한 구체적 인정은?'
+        },
+        placeholder: '예: 가장 많은 시간과 노력을 투자한 구체적 인정은?',
+        rows: 4
+      },
+      {
+        id: 'q2_4_3',
+        label: 'Q2.4.3. 이 과정에서 얻은 가장 중요한 배움이나 깨달음은?',
+        hint: '산업 트렌드와 연결한 통찰력 있는 분석',
+        guide: {
+          description: '답변 가이드: 산업 트렌드와 연결한 통찰력 있는 분석',
+          diagnosis: '즉석자가진단: "당신이 어떻게 기여할 수 있을까요?"',
+          helpQuestions: [
+            '현재 가장 집중하는 이슈는?',
+            '향후 성장 동력은?',
+            '내가 기여할 수 있는 부분은?'
+          ],
+          ifDifficult: '산업 리포트, CEO 인터뷰를 찾아보세요.',
+          ifStillDifficult: '일반적인 산업 트렌드라도 회사와 연결하세요.',
+          example: '예: 이 과정에서 얻은 가장 중요한 배움이나 깨달음은?'
+        },
+        placeholder: '예: 이 과정에서 얻은 가장 중요한 배움이나 깨달음은?',
+        rows: 4
+      }
+    ],
+    5: [
+      {
+        id: 'q2_5_1',
+        label: 'Q2.5.1. 단점 극복을 위한 구체적 노력은?',
+        hint: '구체적인 프로젝트 아이디어와 실행 계획',
+        guide: {
+          description: '답변 가이드: 구체적인 프로젝트 아이디어와 실행 계획',
+          diagnosis: '즉석자가진단: "필요한 리소스는 뭐예요?"',
+          helpQuestions: [
+            '구체적인 프로젝트명은?',
+            '필요한 리소스와 기간은?',
+            '예상되는 성과 지표는?'
+          ],
+          ifDifficult: '현재 회사가 진행 중인 프로젝트를 참고하세요.',
+          ifStillDifficult: '간단한 프로젝트부터 시작하세요.',
+          example: '예: 단점 극복을 위한 구체적 노력은?'
+        },
+        placeholder: '예: 단점 극복을 위한 구체적 노력은?',
+        rows: 4
+      },
+      {
+        id: 'q2_5_2',
+        label: 'Q2.5.2. 처음 이 극복을 알았을 때 어떤 인상을 받았나요?',
+        hint: '시간 순서에 따른 단계별 계획',
+        guide: {
+          description: '답변 가이드: 시간 순서에 따른 단계별 계획',
+          diagnosis: '즉석자가진단: "그게 현실적인가요?"',
+          helpQuestions: [
+            '첫 달: 적응 및 학습',
+            '2-3달: 실무 참여',
+            '4-6달: 독자적 기여'
+          ],
+          ifDifficult: '신입사원의 일반적인 성장 경로를 참고하세요.',
+          ifStillDifficult: '단계별로 나눠 생각하세요.',
+          example: '예: 처음 이 극복을 알았을 때 어떤 인상을 받았나요?'
+        },
+        placeholder: '예: 처음 이 극복을 알았을 때 어떤 인상을 받았나요?',
+        rows: 4
+      },
+      {
+        id: 'q2_5_3',
+        label: 'Q2.5.3. 다른 극복과 비교했을 때 이 극복만의 특별한 점은?',
+        hint: '회사 문화와 업무 방식에 대한 구체적 적응 전략',
+        guide: {
+          description: '답변 가이드: 회사 문화와 업무 방식에 대한 구체적 적응 전략',
+          diagnosis: '즉석자가진단: "첫 주에 뭘 할 건가요?"',
+          helpQuestions: [
+            '빠른 의사결정 문화에 적응하려면?',
+            '글로벌 협업이 필요하다면?',
+            '애자일한 조직 문화에서는?'
+          ],
+          ifDifficult: '회사의 특징적인 문화를 하나 선택해서 적응 방법을 설명하세요.',
+          ifStillDifficult: '일반적인 적응 전략이라도 구체화하세요.',
+          example: '예: 다른 극복과 비교했을 때 이 극복만의 특별한 점은?'
+        },
+        placeholder: '예: 다른 극복과 비교했을 때 이 극복만의 특별한 점은?',
+        rows: 4
+      }
+    ],
+    6: [
+      {
+        id: 'q2_6_1',
+        label: 'Q2.6.1. 성장하는 균형감과 시너지?',
+        hint: '구체적인 인물과 닮고 싶은 점 명확히',
+        guide: {
+          description: '답변 가이드: 구체적인 인물과 닮고 싶은 점 명확히',
+          diagnosis: '즉석자가진단: "그 사람의 어떤 점을 닮고 싶어요?"',
+          helpQuestions: [
+            '그 사람의 어떤 점을 닮고 싶나요?',
+            '그 사람의 커리어 경로는?',
+            '나만의 차별점은?'
+          ],
+          ifDifficult: '업계 유명 인사를 찾아보세요.',
+          ifStillDifficult: '유명하지 않아도 괜찮습니다.',
+          example: '예: 성장하는 균형감과 시너지?'
+        },
+        placeholder: '예: 성장하는 균형감과 시너지?',
+        rows: 4
+      },
+      {
+        id: 'q2_6_2',
+        label: 'Q2.6.2. 그 균형을 보여주는 가장 강력한 경험은?',
+        hint: '차별화된 전문 영역과 구체적 계획',
+        guide: {
+          description: '답변 가이드: 차별화된 전문 영역과 구체적 계획',
+          diagnosis: '즉석자가진단: "왜 그 분야인가요?"',
+          helpQuestions: [
+            '어떤 세부 분야에 집중할 건가요?',
+            '차별화 포인트는?',
+            '그를 위한 준비는?'
+          ],
+          ifDifficult: '현재 트렌드와 자신의 강점을 결합하세요.',
+          ifStillDifficult: '기본에 충실하되 한 가지를 깊게 파는 전략도 좋습니다.',
+          example: '예: 그 균형을 보여주는 가장 강력한 경험은?'
+        },
+        placeholder: '예: 그 균형을 보여주는 가장 강력한 경험은?',
+        rows: 4
+      }
+    ]
+  };
 
-    // Career Section
-    html += `<h2>경력사항</h2>`;
-    if (formData.careers.length > 0) {
-      formData.careers.forEach(career => {
-        html += `
-          <table class="section-table">
-            <tr><th>회사명</th><td>${career.company}${career.isCurrentJob ? ' (재직중)' : ''}</td></tr>
-            <tr><th>부서</th><td>${career.department}</td></tr>
-            <tr><th>직책</th><td>${career.position}</td></tr>
-            <tr><th>재직 기간</th><td>${career.period}</td></tr>
-            <tr><th>주요 역할</th><td>${career.role.replace(/\n/g, '<br>')}</td></tr>
-          </table>
-        `;
-      });
+  const round3Questions = [
+    {
+      id: 'connect_3_4',
+      label: '연결 확인 3→4: 장점에서 단점으로의 자연스러운 전환',
+      hint: 'STEP 3의 장점이 STEP 4의 단점으로 어떻게 이어졌나요?',
+      placeholder: '예: 장점에서 단점으로의 자연스러운 전환',
+      rows: 3,
+      referenceSteps: [3, 4],
+      referenceQuestions: ['q1_3_1', 'q1_3_2', 'q1_3_3', 'q1_4_1']
+    },
+    {
+      id: 'connect_4_5',
+      label: '연결 확인 4→5: 단점 인정에서 극복 노력으로의 논리적 발전',
+      hint: 'STEP 4의 단점이 STEP 5의 노력으로 어떻게 전환되었나요?',
+      placeholder: '예: 단점 인정에서 극복 노력으로의 논리적 발전',
+      rows: 3,
+      referenceSteps: [4, 5],
+      referenceQuestions: ['q1_4_1', 'q1_4_2', 'q1_4_3', 'q1_5_1']
+    },
+    {
+      id: 'connect_5_6',
+      label: '연결 확인 5→6: 개별 특성에서 통합된 자아상으로의 논리적 연결',
+      hint: 'STEP 5의 노력이 STEP 6의 성장으로 어떻게 반영되었나요?',
+      placeholder: '예: 개별 특성에서 통합된 자아상으로의 논리적 연결',
+      rows: 3,
+      referenceSteps: [5, 6],
+      referenceQuestions: ['q1_5_1', 'q1_5_2', 'q1_5_3', 'q1_6_1']
     }
+  ];
 
-    // Skills Section
-    html += `<h2>스킬 및 자격</h2>`;
-    // Tool Skills
-    html += `<h3>사용 가능 툴</h3>`;
-    if (formData.toolSkills.length > 0) {
-      html += `<table class="section-table">`;
-      html += `<tr><th>툴</th><th>숙련도</th></tr>`;
-      formData.toolSkills.forEach(skill => {
-        html += `<tr><td>${skill.tools}</td><td>${skill.proficiency}</td></tr>`;
-      });
-      html += `</table>`;
-    }
-    // Language Skills
-    html += `<h3>사용 가능 언어</h3>`;
-    if (formData.languageSkills.length > 0) {
-      html += `<table class="section-table">`;
-      html += `<tr><th>언어</th><th>숙련도</th></tr>`;
-      formData.languageSkills.forEach(skill => {
-        html += `<tr><td>${skill.languages}</td><td>${skill.proficiency}</td></tr>`;
-      });
-      html += `</table>`;
-    }
-    // Certifications
-    html += `<h3>자격증</h3>`;
-    if (formData.certifications.length > 0) {
-      html += `<table class="section-table">`;
-      html += `<tr><th>자격증명</th><th>발급기관</th><th>취득일</th></tr>`;
-      formData.certifications.forEach(cert => {
-        html += `<tr><td>${cert.name}</td><td>${cert.issuer}</td><td>${cert.date}</td></tr>`;
-      });
-      html += `</table>`;
-    }
-    // Additional Strength
-    html += `
-      <h3>추가 강점</h3>
-      <table class="section-table">
-        <tr><th>내용</th><td>${formData.additionalStrength.replace(/\n/g, '<br>')}</td></tr>
-      </table>
-    `;
+  const handleAnswerChange = (questionId, value) => {
+    setAnswers(prev => ({ ...prev, [questionId]: value }));
+  };
 
-    // Publications Section
-    html += `<h2>작성 논문</h2>`;
-    if (formData.publications.length > 0) {
-      html += `<table class="section-table">`;
-      html += `<tr><th>논문 제목</th><th>저자</th><th>저널/학회</th><th>권호</th><th>페이지</th><th>DOI/URL</th></tr>`;
-      formData.publications.forEach(pub => {
-        html += `
-          <tr>
-            <td><strong>${pub.title}</strong></td>
-            <td>${pub.author}</td>
-            <td><i>${pub.journal}</i></td>
-            <td>${pub.volume}(${pub.issue})</td>
-            <td>${pub.pages}</td>
-            <td>${pub.doi ? pub.doi : ''}</td>
-          </tr>
-        `;
-      });
-      html += `</table>`;
-    }
+  const handleBasicInfoChange = (field, value) => {
+    setBasicInfo(prev => ({ ...prev, [field]: value }));
+  };
 
-    // Projects Section
-    html += `<h2>주요 프로젝트</h2>`;
-    if (formData.projects.length > 0) {
-      formData.projects.forEach((project, index) => {
-        html += `
-          <h3>프로젝트 ${index + 1}: ${project.name}</h3>
-          <table class="section-table">
-            <tr><th>회사/조직</th><td>${project.company}</td></tr>
-            <tr><th>기간</th><td>${project.period}</td></tr>
-            <tr><th>배경</th><td>${project.background.replace(/\n/g, '<br>')}</td></tr>
-            <tr><th>목표</th><td>${project.goals.replace(/\n/g, '<br>')}</td></tr>
-            <tr><th>역할 및 수행 내용</th><td>${project.roleAndTasks.replace(/\n/g, '<br>')}</td></tr>
-            <tr><th>성과</th><td>${project.achievement.replace(/\n/g, '<br>')}</td></tr>
-            <tr><th>인사이트</th><td>${project.insights.replace(/\n/g, '<br>')}</td></tr>
-          </table>
-        `;
-      });
+  const getProgress = () => {
+    if (currentPhase === 'round1') {
+      return (currentStep / round1Steps.length) * 30;
+    } else if (currentPhase === 'round2') {
+      return 30 + (currentStep / selectedSteps.length) * 30;
+    } else if (currentPhase === 'round3') {
+      return 60 + (currentStep / round3Questions.length) * 40;
     }
+    return 0;
+  };
 
-    // Footer
-    html += `
-      <div class="footer">
-        <p style="font-weight: bold">© 2025 CareerEngineer. All Rights Reserved.</p>
-        <p>이 문서는 저작권법에 의해 보호받는 저작물입니다.</p>
-        <p>문서의 전체 또는 일부를 저작권자의 사전 서면 동의 없이 무단으로 복제, 배포, 전송, 전시, 방송하거나 수정 및 편집하는 행위는 금지되어 있으며,<br>위반 시 관련 법령에 따라 법적인 책임을 질 수 있습니다.</p>
-        <p>오직 개인적인 용도로만 사용해야 하며, 상업적 목적의 사용 및 무단 배포를 엄격히 금지합니다.</p>
-      </div>
-      </body>
-      </html>
-    `;
-    
-    const blob = new Blob([html], { type: 'application/msword' });
+  const progress = getProgress();
+
+  const canGoNext = () => {
+    if (currentPhase === 'round1' && currentStep === 0) {
+      return basicInfo.industry && basicInfo.position && basicInfo.company;
+    }
+    return currentStepData.questions.every(q => answers[q.id]);
+  };
+
+  const toggleStepSelection = (stepId) => {
+    setSelectedSteps(prev => 
+      prev.includes(stepId) 
+        ? prev.filter(id => id !== stepId)
+        : [...prev, stepId]
+    );
+  };
+
+  const goToNextStep = () => {
+    if (currentPhase === 'round1') {
+      if (currentStep < round1Steps.length - 1) {
+        setCurrentStep(prev => prev + 1);
+      } else {
+        setCurrentPhase('evaluation');
+        setCurrentStep(0);
+      }
+    } else if (currentPhase === 'evaluation') {
+      setCurrentPhase('round2');
+      setCurrentStep(0);
+    } else if (currentPhase === 'round2') {
+      if (currentStep < selectedSteps.length - 1) {
+        setCurrentStep(prev => prev + 1);
+      } else {
+        setCurrentPhase('round3');
+        setCurrentStep(0);
+      }
+    } else if (currentPhase === 'round3') {
+      if (currentStep < round3Questions.length - 1) {
+        setCurrentStep(prev => prev + 1);
+      } else {
+        generateFinalText();
+        setCurrentPhase('completed');
+      }
+    }
+  };
+
+  const goToPrevStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(prev => prev - 1);
+    } else if (currentPhase === 'round3') {
+      setCurrentPhase('round2');
+      setCurrentStep(selectedSteps.length - 1);
+    } else if (currentPhase === 'round2') {
+      setCurrentPhase('evaluation');
+    } else if (currentPhase === 'evaluation') {
+      setCurrentPhase('round1');
+      setCurrentStep(round1Steps.length - 1);
+    } else if (currentPhase === 'completed') {
+      setCurrentPhase('round3');
+      setCurrentStep(round3Questions.length - 1);
+    }
+  };
+
+  const generateFinalText = () => {
+    let text = `성격의 장단점: ${basicInfo.company || '회사'} - ${basicInfo.position || '직무'}\n\n`;
+
+    round1Steps.slice(1).forEach(step => {
+      text += `${step.title}\n`;
+      step.questions.forEach(q => {
+        text += `${q.label}: ${answers[q.id] || '(미작성)'}\n\n`;
+      });
+    });
+
+    selectedSteps.forEach(stepId => {
+      text += `${round1Steps[stepId].title} - 심화\n`;
+      round2Questions[stepId].forEach(q => {
+        text += `${q.label}: ${answers[q.id] || '(미작성)'}\n\n`;
+      });
+    });
+
+    text += '연결 및 완성\n';
+    round3Questions.forEach(q => {
+      text += `${q.label}: ${answers[q.id] || '(미작성)'}\n\n`;
+    });
+
+    setFinalText(text);
+  };
+
+  const getRawAnswersText = () => {
+    let text = '';
+    Object.entries(answers).forEach(([id, answer]) => {
+      text += `${id}: ${answer}\n\n`;
+    });
+    return text;
+  };
+
+  const downloadFinalText = () => {
+    const blob = new Blob([finalText], { type: 'application/msword' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${formData.personalInfo.name}_경력기술서_${formData.personalInfo.company}.doc`;
+    a.download = `${basicInfo.company || '회사'}_성격의 장단점.doc`;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    setDownloadSuccess(true);
+    setTimeout(() => setDownloadSuccess(false), 5000);
   };
+
+  const toggleGuide = (questionId) => {
+    setShowGuide(prev => ({ ...prev, [questionId]: !prev[questionId] }));
+  };
+
+  const currentStepData = currentPhase === 'round1' 
+    ? round1Steps[currentStep]
+    : currentPhase === 'round2'
+    ? { 
+        title: `${round1Steps[selectedSteps[currentStep]].title} - 심화`,
+        questions: round2Questions[selectedSteps[currentStep]]
+      }
+    : {
+        title: '3라운드: 연결 및 완성',
+        questions: [round3Questions[currentStep]]
+      };
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-8">
-        <div className="bg-white rounded-lg shadow-2xl p-8 max-w-md w-full">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-100 rounded-full mb-4">
-              <Lock className="w-8 h-8 text-indigo-600" />
-            </div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">비공개 페이지</h1>
-            <p className="text-gray-600">CareerEngineer의 경력기술서 작성 가이드&템플릿</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full">
+          <div className="text-center mb-6">
+            <Lock className="w-12 h-12 mx-auto text-indigo-600 mb-4" />
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">워크북 잠금 해제</h2>
+            <p className="text-gray-600">비밀번호를 입력하세요 (힌트: career2025)</p>
           </div>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">비밀번호를 입력하세요</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
-                placeholder="비밀번호 입력"
-                autoFocus
-              />
+          
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 mb-4"
+            placeholder="비밀번호 입력"
+          />
+          
+          {showError && (
+            <p className="text-red-500 text-sm mb-4 text-center">잘못된 비밀번호입니다.</p>
+          )}
+          
+          <button
+            onClick={handleLogin}
+            className="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold"
+          >
+            잠금 해제
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (showIntro) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <h1 className="text-3xl font-bold text-gray-800 mb-4 text-center">
+              질문에 답하며 완성하는 성격의 장단점 워크북
+            </h1>
+            <p className="text-center text-gray-600 mb-8">
+              체계적 접근 → 구체적 답변 → 완성도 높은 성격의 장단점
+            </p>
+
+            <div className="bg-blue-50 border-l-4 border-blue-400 p-6 mb-8">
+              <h3 className="font-bold text-gray-800 mb-3">대원칙</h3>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li><strong>허위 성격 특성은 금물</strong></li>
+                <li><strong>진정성 체크 필수:</strong> 면접에서 일관성 있게 설명 가능한 성격만 표현</li>
+                <li><strong>구체적 발현 필수:</strong> 추상적 성격 표현보다 구체적 행동 패턴 중심</li>
+                <li><strong>솔직함 필수:</strong> 가짜 단점보다 진정성 있는 성격이 100배 나음</li>
+                <li><strong>검증 가능한 내용:</strong> 가족·친구들도 인정할 수 있는 내용만 사용</li>
+              </ul>
             </div>
-            {showError && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                비밀번호가 올바르지 않습니다.
+
+            <div className="bg-indigo-50 border-l-4 border-indigo-400 p-6 mb-8">
+              <h3 className="font-bold text-gray-800 mb-3">워크북 시스템 개요</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-white rounded-lg p-4 border-l-4 border-blue-500">
+                  <h3 className="font-bold text-gray-800 mb-2">1라운드: 기본 성격의 장단점 수립</h3>
+                  <p className="text-sm text-gray-700">6단계 핵심 질문에 답변하여 전체 성격 구조 확보</p>
+                </div>
+                <div className="bg-white rounded-lg p-4 border-l-4 border-indigo-500">
+                  <h3 className="font-bold text-gray-800 mb-2">2라운드: 구체화 및 보강</h3>
+                  <p className="text-sm text-gray-700">선택한 단계의 세부 질문으로 구체화</p>
+                </div>
+                <div className="bg-white rounded-lg p-4 border-l-4 border-purple-500">
+                  <h3 className="font-bold text-gray-800 mb-2">3라운드: 연결 및 완성</h3>
+                  <p className="text-sm text-gray-700">1-2라운드 답변을 연결하여 자연스러운 완성</p>
+                </div>
               </div>
-            )}
+            </div>
+
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 mb-8">
+              <h3 className="font-bold text-gray-800 mb-3">성격의 장단점 핵심 원칙</h3>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li><strong>진정성 원칙:</strong> 실제 성격과 일치하는 솔직한 자기 표현</li>
+                <li><strong>구체성 원칙:</strong> 추상적 성격 표현보다 구체적 행동 패턴과 발현 양상</li>
+                <li><strong>자기인식 원칙:</strong> 객관적이고 균형잡힌 자기 이해</li>
+                <li><strong>성장성 원칙:</strong> 지속적 발전 의지와 구체적 개선 노력</li>
+              </ul>
+            </div>
+
+            <div className="bg-red-50 border-2 border-red-300 rounded-lg p-6 mb-8">
+              <h3 className="font-bold text-red-800 mb-2">⚠️ 반드시 확인</h3>
+              <p className="text-sm text-red-700">
+                작성 내용은 자동 저장되지 않습니다. 마지막에 워드 파일(.doc)로 다운로드 필수!
+              </p>
+            </div>
+
             <button
-              onClick={handleLogin}
-              className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition-colors font-semibold"
+              onClick={() => setShowIntro(false)}
+              className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-colors font-bold text-lg"
             >
-              접속하기
+              1라운드 시작하기 →
             </button>
           </div>
         </div>
@@ -479,502 +819,383 @@ function CareerStatementGenerator() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4">
-      <div className="max-w-6xl mx-auto">
-        {/* 헤더 */}
-        <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 mb-6">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <FileText className="w-8 h-8 text-indigo-600" />
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-              CareerEngineer의 경력기술서 작성 가이드&템플릿
-            </h1>
-          </div>
+  if (currentPhase === 'evaluation') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <h2 className="text-3xl font-bold text-gray-800 mb-4 text-center">
+              1라운드 완료! 🎉
+            </h2>
+            <p className="text-center text-gray-600 mb-8">
+              부족하다고 느끼는 STEP을 선택하여 2라운드에서 심화 질문에 답변하세요
+            </p>
 
-          <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-            <p className="text-xs font-bold text-gray-700 mb-2">© 2025 CareerEngineer. All Rights Reserved.</p>
-            <p className="text-xs text-gray-500 mb-1">이 문서는 저작권법에 의해 보호받는 저작물입니다.</p>
-            <p className="text-xs text-red-500 mb-1">문서의 전체 또는 일부를 저작권자의 사전 서면 동의 없이 무단으로 복제, 배포, 전송, 전시, 방송하거나</p>
-            <p className="text-xs text-red-500 mb-1">수정 및 편집하는 행위는 금지되어 있으며, 위반 시 관련 법령에 따라 법적인 책임을 질 수 있습니다.</p>
-            <p className="text-xs text-gray-500">오직 개인적인 용도로만 사용해야 하며, 상업적 목적의 사용 및 무단 배포를 엄격히 금지합니다.</p>
-          </div>
-
-          <div className="mt-6"></div>
-
-          <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded">
-            <p className="text-sm font-semibold text-gray-800 mb-2">작성 핵심 원칙</p>
-            <ul className="text-sm text-gray-900 space-y-1">
-              <li>• <strong>직무 공고와 연결:</strong> 지원 직무의 요구사항에 맞춰 경험을 강조하세요</li>
-              <li>• <strong>최신순 정렬:</strong> 최근 경력과 프로젝트를 먼저 작성하세요</li>
-              <li>• <strong>구체적으로:</strong> 역할과 성과를 숫자로 표현하세요 (예: "매출 10% 증가")</li>
-              <li>• <strong>역할 구분:</strong> 팀 성과와 나의 기여를 명확히 나눠 작성하세요</li>
-              <li>• <strong>간결하게:</strong> 1-2페이지, 핵심만 전달하세요</li>
-            </ul>
-          </div>
-        </div>
-
-        {/* JD 분석 가이드 */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg shadow-lg p-6 md:p-8 mb-6">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <HelpCircle className="w-6 h-6 text-indigo-600" />
-            직무 공고(JD) 기반 작성법
-          </h2>
-          
-          <div className="bg-white p-4 md:p-6 rounded-lg mb-4">
-            <h3 className="text-lg font-bold text-indigo-600 mb-3">📋 JD 분석 및 키워드 찾기</h3>
-            <div className="text-sm text-gray-700 space-y-2">
-              <p><strong>1단계:</strong> 지원 직무 JD의 핵심 요구사항 파악</p>
-              <p><strong>2단계:</strong> JD 요구사항과 매칭되는 본인의 경험/프로젝트 선별</p>
-              <p><strong>3단계:</strong> 선별한 경험을 구체적 숫자와 기간으로 표현</p>
-              <div className="mt-3 p-3 bg-blue-50 rounded">
-                <p className="text-blue-700 font-semibold">💡 예시:</p>
-                <p className="text-sm">개발자 JD: "Python으로 데이터 분석 2년 이상" → "Python으로 고객 데이터 분석 3년"</p>
-                <p className="text-sm">마케터 JD: "디지털 광고 캠페인 운영" → "Google Ads로 캠페인 15개 운영"</p>
-                <p className="text-sm">HR JD: "채용 프로세스 관리" → "연간 50명 채용 프로세스 주도"</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white p-4 md:p-6 rounded-lg">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="text-lg font-bold text-green-600 mb-3">✅ 좋은 표현 (구체적)</h3>
-                <ul className="text-sm text-gray-700 space-y-2">
-                  <li>• 개발자: "Python과 SQL로 데이터 분석 3년"</li>
-                  <li>• 마케터: "Google Ads와 Analytics를 활용한 캠페인 최적화"</li>
-                  <li>• HR: "ATS 도입으로 채용 시간 30% 단축"</li>
-                  <li>• 교육자: "100명 규모 워크숍 10회 운영"</li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-red-600 mb-3">❌ 나쁜 표현 (애매함)</h3>
-                <ul className="text-sm text-gray-700 space-y-2">
-                  <li>• "열정적인 직원입니다"</li>
-                  <li>• "프로젝트를 성공적으로 완료"</li>
-                  <li>• "시스템 성능 개선"</li>
-                  <li>• "좋은 성과를 냈습니다"</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 인적사항 */}
-        <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 mb-6">
-          <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 mb-6">
-            <h3 className="text-lg font-bold text-blue-800 mb-4">📌 인적사항 작성 시 중요 안내사항</h3>
-            <div className="space-y-3 text-sm text-gray-700">
-              <div className="flex items-start gap-2">
-                <span className="text-blue-600">•</span>
-                <p><strong>개인정보 보호:</strong> 귀하가 작성하신 모든 내용은 브라우저에서만 처리되며, 외부 서버에 저장되지 않습니다.</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2 mb-6">
-            <User className="w-6 h-6 text-indigo-600" />
-            <h2 className="text-xl md:text-2xl font-bold text-gray-800">인적사항</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">성명</label>
-              <input type="text" value={formData.personalInfo.name} onChange={(e) => updatePersonalInfo('name', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">생년월일</label>
-              <input type="text" value={formData.personalInfo.birth} onChange={(e) => updatePersonalInfo('birth', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: 1995.01.01" />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">연락처</label>
-              <input type="text" value={formData.personalInfo.phone} onChange={(e) => updatePersonalInfo('phone', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: 010-0000-0000" />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">이메일</label>
-              <input type="email" value={formData.personalInfo.email} onChange={(e) => updatePersonalInfo('email', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: example@email.com" />
-            </div>
-            <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">주소</label>
-              <input type="text" value={formData.personalInfo.address} onChange={(e) => updatePersonalInfo('address', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: 서울특별시 강남구" />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">지원 직무</label>
-              <input type="text" value={formData.position} onChange={(e) => setFormData({...formData, position: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: 백엔드 개발자, 디지털 마케터, HR 매니저" />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">지원 회사</label>
-              <input type="text" value={formData.personalInfo.company} onChange={(e) => updatePersonalInfo('company', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: ABC솔루션" />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">총 경력 (년)</label>
-              <input type="number" value={formData.years} onChange={(e) => setFormData({...formData, years: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: 5" />
-            </div>
-          </div>
-        </div>
-
-        {/* 학력사항 */}
-        <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 mb-6">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">학력사항</h2>
-          {formData.education.map((edu, index) => (
-            <div key={index} className="mb-4 p-4 bg-gray-50 rounded-lg">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-800">학력 {index + 1}</h3>
-                {formData.education.length > 1 && (
-                  <button onClick={() => removeEducation(index)} className="text-red-600 hover:text-red-800 text-sm">삭제</button>
-                )}
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">학교명</label>
-                  <input type="text" value={edu.school} onChange={(e) => updateEducation(index, 'school', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: OO대학교" />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">전공</label>
-                  <input type="text" value={edu.major} onChange={(e) => updateEducation(index, 'major', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: 컴퓨터공학과" />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">학위</label>
-                  <input type="text" value={edu.degree} onChange={(e) => updateEducation(index, 'degree', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: 학사, 석사, 박사" />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">재학 기간</label>
-                  <input type="text" value={edu.period} onChange={(e) => updateEducation(index, 'period', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: 2015.03 - 2019.02" />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">졸업 상태</label>
-                  <select value={edu.status} onChange={(e) => updateEducation(index, 'status', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
-                    <option value="">선택</option>
-                    <option value="졸업">졸업</option>
-                    <option value="재학">재학</option>
-                    <option value="수료">수료</option>
-                    <option value="중퇴">중퇴</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          ))}
-          <button onClick={addEducation} className="w-full py-3 border-2 border-dashed border-indigo-300 text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50">+ 학력 추가</button>
-        </div>
-
-        {/* 핵심역량 */}
-        <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 mb-6">
-          <div className="flex items-center gap-2 mb-6">
-            <Award className="w-6 h-6 text-indigo-600" />
-            <h2 className="text-xl md:text-2xl font-bold text-gray-800">핵심역량 (JD 기반 작성)</h2>
-          </div>
-          
-          <div className="mb-6 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
-            <p className="text-sm font-semibold text-blue-800 mb-2">✅ JD 매칭 작성법</p>
-            <div className="text-sm text-gray-700 space-y-2">
-              <p>1. 지원 직무 JD의 핵심 요구사항 파악</p>
-              <p>2. JD 요구사항과 매칭되는 본인의 경험/프로젝트 선별</p>
-              <p>3. 선별한 경험을 구체적 숫자와 기간으로 표현</p>
-              <p className="text-blue-700 font-semibold mt-2">💡 예시: JD에 "MSA 전환 경험" 요구 → "3년간 레거시 시스템 MSA 전환 3건 리드"</p>
-            </div>
-          </div>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">1줄 포지셔닝 (JD 핵심 키워드 포함)</label>
-              <textarea value={formData.oneLineIntro} onChange={(e) => setFormData({...formData, oneLineIntro: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" rows={2} placeholder="예시:&#10;• 개발자: 3년차 데이터 분석가로 Python과 SQL을 활용한 데이터 시각화 전문&#10;• 마케터: 4년차 디지털 마케터로 Google Ads와 Analytics를 활용한 캠페인 최적화 전문&#10;• HR: 5년차 HR 전문가로 채용 프로세스와 인재 평가 전문" />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">핵심역량 1 (JD 필수 요구사항과 매칭)</label>
-              <textarea value={formData.competency1} onChange={(e) => setFormData({...formData, competency1: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" rows={3} placeholder="예시:&#10;• 개발자: Python, SQL로 데이터 분석 3년 | 10만 건 데이터 처리 자동화&#10;• 마케터: 디지털 광고 캠페인 4년 | Google Ads로 전환율 2%→3.5% 향상&#10;• HR: 채용 프로세스 관리 5년 | 연간 100명 채용, 성공률 95%" />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">핵심역량 2 (JD 우대 요구사항과 매칭)</label>
-              <textarea value={formData.competency2} onChange={(e) => setFormData({...formData, competency2: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" rows={3} placeholder="예시:&#10;• 개발자: Power BI 시각화 | 대시보드 20개 구축으로 의사결정 속도 50% 향상&#10;• 마케터: SEO 최적화 | 자연 검색 트래픽 300% 증가, 월 방문자 10만명 달성&#10;• HR: ATS 시스템 운영 | Workday로 채용 프로세스 자동화, 시간 30% 단축" />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">핵심역량 3 (추가 차별화 역량)</label>
-              <textarea value={formData.competency3} onChange={(e) => setFormData({...formData, competency3: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" rows={3} placeholder="예시:&#10;• 개발자: 팀 협업 | 5명 팀 리드로 애자일 스프린트 20회 운영&#10;• 마케터: 데이터 분석 | SQL로 고객 세그먼트 분석, 타겟팅 정확도 85%&#10;• HR: 조직문화 개선 | 직원 만족도 조사 설계, 만족도 70%→85% 향상" />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">대표 성과 (가장 임팩트 있는 성과)</label>
-              <textarea value={formData.majorProject} onChange={(e) => setFormData({...formData, majorProject: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" rows={3} placeholder="예시:&#10;• 개발자: Python 자동화로 처리 시간 50% 단축, 연간 1억원 비용 절감&#10;• 마케터: Google Ads 캠페인으로 전환율 2%→3.5%, 매출 2억원 증가&#10;• HR: ATS 도입으로 채용 시간 30% 단축, 연간 100명 채용 성공" />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">핵심 기술 스택 (JD 요구 기술 우선 배치)</label>
-              <textarea value={formData.techStack} onChange={(e) => setFormData({...formData, techStack: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" rows={3} placeholder="예시:&#10;• 개발자: Python, SQL, Power BI, Excel, Tableau, AWS, Git&#10;• 마케터: Google Ads, Analytics, Facebook Ads, SEO, SQL, Excel&#10;• HR: Workday, SAP, Excel, PowerPoint, Teams, Slack" />
-            </div>
-          </div>
-        </div>
-
-        {/* 경력사항 */}
-        <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 mb-6">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">경력사항 (최신순)</h2>
-          {formData.careers.map((career, index) => (
-            <div key={index} className="mb-4 p-4 bg-gray-50 rounded-lg">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-800">경력 {index + 1}</h3>
-                {formData.careers.length > 1 && (
-                  <button onClick={() => removeCareer(index)} className="text-red-600 hover:text-red-800 text-sm">삭제</button>
-                )}
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">회사명</label>
-                  <input type="text" value={career.company} onChange={(e) => updateCareer(index, 'company', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: ABC솔루션" />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">부서</label>
-                  <input type="text" value={career.department} onChange={(e) => updateCareer(index, 'department', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: 개발팀, 마케팅팀" />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">직책</label>
-                  <input type="text" value={career.position} onChange={(e) => updateCareer(index, 'position', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: 선임 개발자, 마케팅 매니저" />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">재직 기간</label>
-                  <input type="text" value={career.period} onChange={(e) => updateCareer(index, 'period', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: 2020.01 - 2023.12" />
-                </div>
-                <div className="md:col-span-2 flex items-center gap-2">
-                  <input type="checkbox" checked={career.isCurrentJob} onChange={(e) => updateCareer(index, 'isCurrentJob', e.target.checked)} className="w-4 h-4 text-indigo-600 rounded" />
-                  <label className="text-sm text-gray-700">현재 재직중</label>
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">주요 역할 및 성과</label>
-                  <textarea value={career.role} onChange={(e) => updateCareer(index, 'role', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" rows={3} placeholder="예: 데이터 분석 시스템 개발 및 운영&#10;• Python으로 일 10만건 데이터 처리 자동화&#10;• 처리 시간 5시간→1시간 단축 (80% 개선)&#10;• 3명 팀에서 데이터 파이프라인 설계 담당" />
-                </div>
-              </div>
-            </div>
-          ))}
-          <button onClick={addCareer} className="w-full py-3 border-2 border-dashed border-indigo-300 text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50">+ 경력 추가</button>
-        </div>
-
-        {/* 스킬 및 자격 */}
-        <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 mb-6">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">스킬 및 자격</h2>
-          
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">사용 가능 툴</h3>
-            {formData.toolSkills.map((skill, index) => (
-              <div key={index} className="mb-4 flex gap-4">
-                <input type="text" value={skill.tools} onChange={(e) => updateToolSkill(index, 'tools', e.target.value)} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: Excel, PowerPoint, Figma, Jira" />
-                <select value={skill.proficiency} onChange={(e) => updateToolSkill(index, 'proficiency', e.target.value)} className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
-                  <option value="">숙련도</option>
-                  <option value="상">상</option>
-                  <option value="중">중</option>
-                  <option value="하">하</option>
-                </select>
-                {formData.toolSkills.length > 1 && (
-                  <button onClick={() => removeToolSkill(index)} className="text-red-600 hover:text-red-800">삭제</button>
-                )}
-              </div>
-            ))}
-            <button onClick={addToolSkill} className="w-full py-2 border-2 border-dashed border-indigo-300 text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50">+ 툴 추가</button>
-          </div>
-          
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">사용 가능 언어</h3>
-            {formData.languageSkills.map((skill, index) => (
-              <div key={index} className="mb-4 flex gap-4">
-                <input type="text" value={skill.languages} onChange={(e) => updateLanguageSkill(index, 'languages', e.target.value)} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: Python, JavaScript, SQL" />
-                <select value={skill.proficiency} onChange={(e) => updateLanguageSkill(index, 'proficiency', e.target.value)} className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
-                  <option value="">숙련도</option>
-                  <option value="상">상</option>
-                  <option value="중">중</option>
-                  <option value="하">하</option>
-                </select>
-                {formData.languageSkills.length > 1 && (
-                  <button onClick={() => removeLanguageSkill(index)} className="text-red-600 hover:text-red-800">삭제</button>
-                )}
-              </div>
-            ))}
-            <button onClick={addLanguageSkill} className="w-full py-2 border-2 border-dashed border-indigo-300 text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50">+ 언어 추가</button>
-          </div>
-          
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">자격증</h3>
-            {formData.certifications.map((cert, index) => (
-              <div key={index} className="mb-4 p-4 bg-gray-50 rounded-lg">
-                <div className="flex justify-between items-center mb-4">
-                  <h4 className="font-semibold text-gray-700">자격증 {index + 1}</h4>
-                  {formData.certifications.length > 1 && (
-                    <button onClick={() => removeCertification(index)} className="text-red-600 hover:text-red-800 text-sm">삭제</button>
-                  )}
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <input type="text" value={cert.name} onChange={(e) => updateCertification(index, 'name', e.target.value)} className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="자격증명" />
-                  <input type="text" value={cert.issuer} onChange={(e) => updateCertification(index, 'issuer', e.target.value)} className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="발급기관" />
-                  <input type="text" value={cert.date} onChange={(e) => updateCertification(index, 'date', e.target.value)} className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="취득일 (예: 2023.01)" />
-                </div>
-              </div>
-            ))}
-            <button onClick={addCertification} className="w-full py-2 border-2 border-dashed border-indigo-300 text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50">+ 자격증 추가</button>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">추가 강점</label>
-            <textarea value={formData.additionalStrength} onChange={(e) => setFormData({...formData, additionalStrength: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" rows={3} placeholder="예: 영어 비즈니스 회화 가능, 해외 프로젝트 경험, 스타트업 근무 경험" />
-          </div>
-        </div>
-
-        {/* 작성 논문 */}
-        <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 mb-6">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">작성 논문</h2>
-          {formData.publications.map((pub, index) => (
-            <div key={index} className="mb-4 p-4 bg-gray-50 rounded-lg">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-800">논문 {index + 1}</h3>
-                {formData.publications.length > 1 && (
-                  <button onClick={() => removePublication(index)} className="text-red-600 hover:text-red-800 text-sm">삭제</button>
-                )}
-              </div>
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">논문 제목</label>
-                  <input type="text" value={pub.title} onChange={(e) => updatePublication(index, 'title', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: 인공지능 기반 데이터 분석의 효율성 연구" />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">저자 구분</label>
-                    <input type="text" value={pub.author} onChange={(e) => updatePublication(index, 'author', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: 제1저자" />
+            <div className="space-y-4 mb-8">
+              {round1Steps.slice(1).map(step => {
+                const stepId = step.id;
+                const isSelected = selectedSteps.includes(stepId);
+                
+                return (
+                  <div 
+                    key={stepId}
+                    className={`border-2 rounded-lg p-5 transition-all ${
+                      isSelected 
+                        ? 'border-indigo-500 bg-indigo-50' 
+                        : 'border-gray-200 bg-white hover:border-indigo-300'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="font-bold text-gray-800 mb-1">{step.title}</h3>
+                        <p className="text-sm text-gray-600 mb-2">{step.subtitle}</p>
+                        <div className="bg-gray-50 rounded p-3 text-sm text-gray-700">
+                          <strong>내 답변:</strong> {answers[step.questions[0].id]?.substring(0, 100) || '(답변 없음)'}
+                          {answers[step.questions[0].id]?.length > 100 && '...'}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => toggleStepSelection(stepId)}
+                        className={`ml-4 px-4 py-2 rounded-lg font-semibold transition-colors ${
+                          isSelected 
+                            ? 'bg-indigo-600 text-white'
+                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        }`}
+                      >
+                        {isSelected ? '✓ 선택됨' : '심화 선택'}
+                      </button>
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">게재 저널/학회</label>
-                    <input type="text" value={pub.journal} onChange={(e) => updatePublication(index, 'journal', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: 한국정보과학회지" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">권</label>
-                    <input type="text" value={pub.volume} onChange={(e) => updatePublication(index, 'volume', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: 45" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">호</label>
-                    <input type="text" value={pub.issue} onChange={(e) => updatePublication(index, 'issue', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: 3" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">페이지</label>
-                    <input type="text" value={pub.pages} onChange={(e) => updatePublication(index, 'pages', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: 123-135" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">발표일</label>
-                    <input type="text" value={pub.date} onChange={(e) => updatePublication(index, 'date', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: 2023.06" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">DOI/URL</label>
-                    <input type="text" value={pub.doi} onChange={(e) => updatePublication(index, 'doi', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: https://doi.org/10.1234/abcd.5678" />
-                  </div>
-                </div>
-              </div>
+                );
+              })}
             </div>
-          ))}
-          <button onClick={addPublication} className="w-full py-3 border-2 border-dashed border-indigo-300 text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50">+ 논문 추가</button>
-        </div>
 
-        {/* 주요 프로젝트 */}
-        <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 mb-6">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">주요 프로젝트 (최신순)</h2>
-          
-          <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 mb-6">
-            <h3 className="text-lg font-bold text-blue-800 mb-4">📌 프로젝트 작성 시 중요 안내사항</h3>
-            <div className="space-y-3 text-sm text-gray-700">
-              <div className="flex items-start gap-2">
-                <span className="text-blue-600">•</span>
-                <p><strong>보안 준수:</strong> 프로젝트 작성 시 보안유지가 필요한 회사명, 민감 정보에 대해서는 해당 분야의 일반적인 용어로 작성하세요.<br/>
-                예: "전자상거래 플랫폼", "금융 서비스 기업", "글로벌 IT 기업" 등</p>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-blue-600">•</span>
-                <p><strong>Compliance 준수:</strong> 기밀유지 의무에 위배되지 않도록 구체적인 수치나 고객사 정보는 범위로 표현하세요.<br/>
-                예: "MAU 100만 이상", "연매출 1000억 규모", "Fortune 500 기업" 등</p>
-              </div>
+            <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+              <p className="text-sm text-blue-800">
+                <strong>💡 선택 기준:</strong> 답변이 부족하거나 더 구체화가 필요한 STEP을 자유롭게 선택하세요. (1개 이상)
+              </p>
+            </div>
+
+            <div className="flex gap-4">
+              <button
+                onClick={goToPrevStep}
+                className="flex items-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium"
+              >
+                <ChevronLeft className="w-5 h-5" />
+                이전
+              </button>
+              <button
+                onClick={goToNextStep}
+                disabled={!selectedSteps.length}
+                className="flex-1 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-lg"
+              >
+                2라운드 시작하기 ({selectedSteps.length}개 선택됨)
+              </button>
             </div>
           </div>
-          
-          <div className="mb-6 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
-            <p className="text-sm font-semibold text-blue-800 mb-2">✅ 프로젝트 작성 가이드</p>
-            <div className="text-sm text-gray-700 space-y-3">
-              <div>
-                <p className="font-semibold text-gray-800 mb-1">📌 성과 작성 3단계:</p>
-                <p><strong>1단계:</strong> 프로젝트 전체 성과 먼저 기술</p>
-                <p><strong>2단계:</strong> 본인의 구체적 담당 업무와 역할 명시</p>
-                <p><strong>3단계:</strong> 본인 담당 영역에서의 성과 수치 제시</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (currentPhase === 'completed') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4">
+                <Check className="w-10 h-10 text-green-600" />
+              </div>
+              <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                성격의 장단점 완성! 🎉
+              </h2>
+              <p className="text-gray-600">
+                아래 내용을 확인하고 자유롭게 수정하세요
+              </p>
+            </div>
+
+            <div className="bg-red-100 border-2 border-red-500 rounded-lg p-5 mb-6">
+              <div className="flex items-start gap-3">
+                <span className="text-3xl">⚠️</span>
+                <div>
+                  <p className="text-base font-bold text-red-900 mb-2">
+                    반드시 다운로드하세요!
+                  </p>
+                  <p className="text-sm text-red-800 leading-relaxed">
+                    지금까지 작성한 모든 내용은 브라우저에만 임시 저장되어 있습니다. 
+                    페이지를 새로고침하거나 닫으면 <strong>모든 내용이 즉시 삭제</strong>됩니다.
+                    <br />
+                    💾 <strong>지금 바로 "워드 파일로 다운로드"</strong> 버튼을 눌러 .doc 파일로 저장하세요!
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg p-5 mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                  <Edit3 className="w-5 h-5 text-blue-600" />
+                  완성된 성격의 장단점 (수정 가능)
+                </h3>
+                <button
+                  onClick={() => setShowRawAnswers(!showRawAnswers)}
+                  className="text-sm text-gray-600 hover:text-gray-800 flex items-center gap-1"
+                >
+                  <Eye className="w-4 h-4" />
+                  {showRawAnswers ? '원본 답변 숨기기' : '원본 답변 보기'}
+                </button>
               </div>
               
-              <div className="mt-3 p-3 bg-green-50 rounded">
-                <p className="font-semibold text-green-800 mb-2">✅ 좋은 예시</p>
-                <p className="text-gray-700 text-sm">
-                  "프로젝트 전체: 결제 성공률 90%→98%, 손실 5천만원→0원<br/>
-                  나의 역할: 4명 팀에서 데이터 분석 담당<br/>
-                  나의 기여: Python으로 분석 자동화, 처리 시간 50% 단축"
+              <textarea
+                value={finalText}
+                onChange={(e) => setFinalText(e.target.value)}
+                rows={20}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 resize-none font-serif leading-relaxed"
+              />
+            </div>
+
+            {showRawAnswers && (
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+                <h4 className="font-semibold text-gray-800 mb-3">📋 원본 답변 참고</h4>
+                <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans">
+                  {getRawAnswersText()}
+                </pre>
+              </div>
+            )}
+
+            <button
+              onClick={downloadFinalText}
+              className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 font-semibold text-lg shadow-lg mb-4"
+            >
+              <Download className="w-6 h-6" />
+              워드 파일로 다운로드 (.doc)
+            </button>
+
+            {downloadSuccess && (
+              <div className="bg-green-100 border-2 border-green-500 rounded-lg p-4 text-center mb-4">
+                <p className="text-green-800 font-semibold">
+                  ✅ 다운로드 완료!
+                </p>
+                <p className="text-sm text-green-700 mt-1">
+                  다운로드 폴더에서 "{basicInfo.company || '회사'}_성격의 장단점.doc" 파일을 Microsoft Word로 열어주세요.
                 </p>
               </div>
+            )}
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+              <p className="text-sm text-blue-800">
+                💾 <strong>워드에서 편집 가능:</strong> 다운로드한 .doc 파일을 Microsoft Word나 한글(HWP)에서 열어 자유롭게 편집하고 서식을 적용할 수 있습니다.
+              </p>
+            </div>
+
+            <div className="flex gap-4 mt-4">
+              <button
+                onClick={goToPrevStep}
+                className="flex items-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium"
+              >
+                <ChevronLeft className="w-5 h-5" />
+                이전으로
+              </button>
             </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            질문에 답하며 완성하는 성격의 장단점 워크북
+          </h1>
+          <p className="text-gray-600">
+            체계적 접근 → 구체적 답변 → 완성도 높은 성격의 장단점
+          </p>
           
-          {formData.projects.map((project, index) => (
-            <div key={index} className="mb-6 p-6 bg-gray-50 rounded-lg border border-gray-200">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-800">프로젝트 {index + 1}</h3>
-                {formData.projects.length > 1 && (
-                  <button onClick={() => removeProject(index)} className="text-red-600 hover:text-red-800 text-sm">삭제</button>
-                )}
-              </div>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">회사/조직</label>
-                    <input type="text" value={project.company} onChange={(e) => updateProject(index, 'company', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: ABC 솔루션" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">프로젝트명</label>
-                    <input type="text" value={project.name} onChange={(e) => updateProject(index, 'name', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: 결제 시스템 성능 개선" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">수행 기간</label>
-                    <input type="text" value={project.period} onChange={(e) => updateProject(index, 'period', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: 2023.01 - 2023.06 (6개월)" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">프로젝트 배경</label>
-                  <textarea value={project.background} onChange={(e) => updateProject(index, 'background', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" rows={3} placeholder="예시:&#10;• 개발자: 월 매출 10억원 플랫폼, 데이터 처리 지연으로 보고 지체&#10;• 마케터: 신규 고객 유입 저조로 월 매출 5억원 정체&#10;• HR: 수동 채용으로 평가 시간 2주, 성공률 80%" />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">프로젝트 목표</label>
-                  <textarea value={project.goals} onChange={(e) => updateProject(index, 'goals', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" rows={3} placeholder="예시:&#10;• 개발자: 처리 시간 50% 단축, 보고서 정확도 95% 이상&#10;• 마케터: 신규 고객 1만명 유입, 전환율 3% 이상&#10;• HR: 채용 시간 1주로 단축, 성공률 90% 이상" />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">자신의 역할 및 수행 내용</label>
-                  <textarea value={project.roleAndTasks} onChange={(e) => updateProject(index, 'roleAndTasks', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" rows={4} placeholder="예시:&#10;• 개발자: 5명 팀에서 데이터 분석 담당, Python 스크립트로 자동화, SQL 쿼리 최적화 10개&#10;• 마케터: 3명 팀에서 광고 기획 담당, Google Ads 타겟 세그먼트 5개 설정, A/B 테스트 10회&#10;• HR: 2명 팀에서 채용 설계 담당, ATS 시스템 도입, 면접 평가 기준 표준화" />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">성과 (전체 성과와 나의 기여 구분)</label>
-                  <textarea value={project.achievement} onChange={(e) => updateProject(index, 'achievement', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" rows={4} placeholder="예시:&#10;[전체 성과]&#10;• 처리 시간 10시간→5시간, 정확도 98%&#10;• 신규 고객 1.2만명, 매출 2.5억원 증가&#10;&#10;[나의 기여]&#10;• 자동화 스크립트 개발로 처리 시간 50% 단축&#10;• 타겟팅 전략으로 전환율 20% 향상" />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">인사이트 및 강조하고 싶은 부분</label>
-                  <textarea value={project.insights} onChange={(e) => updateProject(index, 'insights', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" rows={4} placeholder="예시:&#10;• 개발자: 데이터 자동화로 의사결정 속도를 높이는 중요성 배움&#10;• 마케터: 데이터 기반 타겟팅으로 캠페인 효율성을 높이는 법 배움&#10;• HR: 시스템화로 HR 효율성을 높이는 중요성 배움" />
-                </div>
-              </div>
+          <div className="mt-4">
+            <div className="flex justify-between text-sm text-gray-600 mb-2">
+              <span>
+                {currentPhase === 'round1' ? '1라운드' : currentPhase === 'round2' ? '2라운드' : '3라운드'} - {currentStepData.title}
+              </span>
+              <span>전체 진행률: {Math.round(progress)}%</span>
             </div>
-          ))}
-          <button onClick={addProject} className="w-full py-3 border-2 border-dashed border-indigo-300 text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50">+ 프로젝트 추가</button>
+            <div className="w-full bg-gray-200 rounded-full h-3">
+              <div 
+                className="bg-gradient-to-r from-blue-500 to-indigo-600 h-3 rounded-full transition-all duration-500"
+                style={{ width: progress + '%' }}
+              />
+            </div>
+          </div>
         </div>
 
-        {/* 다운로드 버튼 */}
-        <div className="bg-white rounded-lg shadow-lg p-6 md:p-8">
-          <div className="text-center">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">경력기술서 다운로드</h3>
-            <p className="text-sm text-gray-600 mb-6">작성하신 내용을 워드 문서로 다운로드하여 활용하실 수 있습니다.</p>
-            <button onClick={generateWordDocument} className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors">
-              <Download className="w-5 h-5" />
-              워드 문서로 다운로드
-            </button>
-            <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-              <p className="text-xs font-bold text-gray-700 mb-2">© 2025 CareerEngineer. All Rights Reserved.</p>
-              <p className="text-xs text-gray-500 mb-1">이 문서는 저작권법에 의해 보호받는 저작물입니다.</p>
-              <p className="text-xs text-red-500 mb-1">문서의 전체 또는 일부를 저작권자의 사전 서면 동의 없이 무단으로 복제, 배포, 전송, 전시, 방송하거나</p>
-              <p className="text-xs text-red-500 mb-1">수정 및 편집하는 행위는 금지되어 있으며, 위반 시 관련 법령에 따라 법적인 책임을 질 수 있습니다.</p>
-              <p className="text-xs text-gray-500">오직 개인적인 용도로만 사용해야 하며, 상업적 목적의 사용 및 무단 배포를 엄격히 금지합니다.</p>
+        <div className="bg-white rounded-lg shadow-lg p-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            {currentStepData.title}
+          </h2>
+          {currentStepData.subtitle && (
+            <p className="text-gray-600 mb-6">{currentStepData.subtitle}</p>
+          )}
+
+          {currentStep === 0 && currentPhase === 'round1' ? (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  지원하고자 하는 산업
+                </label>
+                <input
+                  type="text"
+                  value={basicInfo.industry}
+                  onChange={(e) => handleBasicInfoChange('industry', e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="예: 전기차/배터리 산업"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  지원하고자 하는 직무
+                </label>
+                <input
+                  type="text"
+                  value={basicInfo.position}
+                  onChange={(e) => handleBasicInfoChange('position', e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="예: 자율주행 및 전기차 SW 개발"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  지원하고자 하는 회사명
+                </label>
+                <input
+                  type="text"
+                  value={basicInfo.company}
+                  onChange={(e) => handleBasicInfoChange('company', e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="예: 삼성전자, 현대자동차 등"
+                />
+              </div>
             </div>
+          ) : (
+            <div className="space-y-6">
+              {currentStepData.questions.map((q) => (
+                <div key={q.id} className="mb-6 border-b border-gray-200 pb-6 last:border-b-0">
+                  <div className="flex items-start justify-between mb-2">
+                    <label className="text-lg font-semibold text-gray-800">
+                      {q.label}
+                    </label>
+                    {q.guide && (
+                      <button
+                        onClick={() => toggleGuide(q.id)}
+                        className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
+                      >
+                        <HelpCircle className="w-4 h-4" />
+                        {showGuide[q.id] ? '가이드 숨기기' : '가이드 보기'}
+                      </button>
+                    )}
+                  </div>
+                  
+                  {q.hint && (
+                    <p className="text-sm text-gray-600 mb-2">💡 {q.hint}</p>
+                  )}
+                  
+                  {q.referenceQuestions && (
+                    <div className="bg-indigo-50 border-l-4 border-indigo-400 p-4 mb-3">
+                      <p className="text-sm font-semibold text-indigo-900 mb-2">📚 참고: 이전 답변</p>
+                      <div className="space-y-3">
+                        {q.referenceQuestions.map((refId) => {
+                          const refQuestion = [...round1Steps.flatMap(s => s.questions || [])].find(q => q?.id === refId);
+                          if (!refQuestion || !answers[refId]) return null;
+                          return (
+                            <div key={refId} className="bg-white p-3 rounded text-sm">
+                              <p className="font-semibold text-gray-700 mb-1">{refQuestion.label}</p>
+                              <p className="text-gray-600 italic">{answers[refId]?.substring(0, 150)}{answers[refId]?.length > 150 ? '...' : ''}</p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {q.guide && showGuide[q.id] && (
+                    <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-3 space-y-3">
+                      <div>
+                        <p className="text-sm font-semibold text-blue-900 mb-1">📝 {q.guide.description}</p>
+                      </div>
+                      
+                      <div>
+                        <p className="text-sm font-semibold text-blue-900 mb-1">🎯 {q.guide.diagnosis}</p>
+                      </div>
+                      
+                      {q.guide.helpQuestions && (
+                        <div>
+                          <p className="text-sm font-semibold text-blue-900 mb-1">❓ 구체화 도움 질문:</p>
+                          <ul className="text-sm text-blue-800 space-y-1 ml-4">
+                            {q.guide.helpQuestions.map((hq, i) => (
+                              <li key={i}>• {hq}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {q.guide.ifDifficult && (
+                        <div>
+                          <p className="text-sm font-semibold text-blue-900 mb-1">💭 답변하기 어렵다면:</p>
+                          <p className="text-sm text-blue-800">{q.guide.ifDifficult}</p>
+                        </div>
+                      )}
+                      
+                      {q.guide.ifStillDifficult && (
+                        <div>
+                          <p className="text-sm font-semibold text-blue-900 mb-1">💡 구체화 도움 질문으로도 어렵다면:</p>
+                          <p className="text-sm text-blue-800">{q.guide.ifStillDifficult}</p>
+                        </div>
+                      )}
+                      
+                      {q.guide.example && (
+                        <div>
+                          <p className="text-sm font-semibold text-blue-900 mb-1">✏️ 답변 작성 예시:</p>
+                          <p className="text-sm text-blue-800 italic bg-white p-2 rounded">{q.guide.example}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  <textarea
+                    value={answers[q.id] || ''}
+                    onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                    rows={q.rows || 3}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 resize-none"
+                    placeholder={q.placeholder}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="flex gap-4 mt-8">
+            <button
+              onClick={goToPrevStep}
+              className="flex items-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium"
+            >
+              <ChevronLeft className="w-5 h-5" />
+              이전
+            </button>
+            <button
+              onClick={goToNextStep}
+              disabled={!canGoNext()}
+              className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+            >
+              다음
+              <ChevronRight className="w-5 h-5" />
+            </button>
           </div>
         </div>
       </div>
     </div>
   );
-}
+};
 
-export default CareerStatementGenerator;
+export default PersonalityWorkbook;
