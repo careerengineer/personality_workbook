@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+/* eslint-disable */
+ function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Check, Download, HelpCircle, Eye, Edit3 } from 'lucide-react';
 
 const PersonalityWorkbook = () => {
@@ -10,12 +11,12 @@ const PersonalityWorkbook = () => {
   const [downloadSuccess, setDownloadSuccess] = useState(false);
   const [showRawAnswers, setShowRawAnswers] = useState(false);
   const [finalText, setFinalText] = useState('');
-  const [basicInfo, setBasicInfo] = useState({ industry: '', position: '', company: '' });
+  const [basicInfo, setBasicInfo] = useState({ position: '', company: '' });
   const [answers, setAnswers] = useState({});
 
   // ── 1라운드: Q1(장점 7문항) + Q2(단점 4문항) ──────────
   const round1Steps = [
-    { id: 0, title: '기본 정보 입력', subtitle: '지원할 산업, 직무, 회사를 입력하세요' },
+    { id: 0, title: '기본 정보 입력', subtitle: '지원할 직무와 회사를 입력하세요' },
     {
       id: 1,
       title: 'Q1: 장점',
@@ -575,7 +576,7 @@ const PersonalityWorkbook = () => {
   };
 
   const getRawAnswersText = () => {
-    return `📋 원본 답변 모음\n\n[기본 정보]\n산업: ${basicInfo.industry||'-'}\n직무: ${basicInfo.position||'-'}\n회사: ${basicInfo.company||'-'}\n\n` +
+    return `📋 원본 답변 모음\n\n[기본 정보]\n직무: ${basicInfo.position||'-'}\n회사: ${basicInfo.company||'-'}\n\n` +
     `[Q1 장점]\nQ1-1 (장점): ${answers.q1_1||'-'}\nQ1-2 (형성 계기): ${answers.q1_2||'-'}\nQ1-3 (발전 결심 계기): ${answers.q1_3||'-'}\nQ1-4 (지속성 증명): ${answers.q1_4||'-'}\nQ1-5 (STAR 성과): ${answers.q1_5||'-'}\nQ1-6 (직무 연결): ${answers.q1_6||'-'}\nQ1-7 (기여): ${answers.q1_7||'-'}\n\n` +
     `[Q2 단점]\nQ2-1 (단점+인식): ${answers.q2_1||'-'}\nQ2-2 (결심 계기): ${answers.q2_2||'-'}\nQ2-3 (현재 관리): ${answers.q2_3||'-'}\nQ2-4 (성장 증거): ${answers.q2_4||'-'}\n\n` +
     `[3라운드 연결]\n①→③ 장점+계기+발전: ${answers.connect_adv_core||'-'}\n④→⑤ 지속성+성과: ${answers.connect_adv_evidence||'-'}\n⑥→⑦ 직무연결+기여: ${answers.connect_adv_contribution||'-'}\n⑦→⑨ 단점+결심: ${answers.connect_dis_recognition||'-'}\n⑩→⑪ 관리+성장: ${answers.connect_dis_growth||'-'}`;
@@ -583,7 +584,7 @@ const PersonalityWorkbook = () => {
 
   const canGoNext = () => {
     if (currentPhase === 'evaluation') return selectedSteps.length >= 1;
-    if (currentStep === 0 && currentPhase === 'round1') return !!(basicInfo.industry && basicInfo.position && basicInfo.company);
+    if (currentStep === 0 && currentPhase === 'round1') return !!(basicInfo.position && basicInfo.company);
     return true;
   };
 
@@ -593,212 +594,213 @@ const PersonalityWorkbook = () => {
     ? 33 + ((currentStep + 1) / selectedSteps.length) * 33
     : 66 + ((currentStep + 1) / round3Questions.length) * 34;
 
+  // ── 로그인 화면 ──────────────────────────────────────
   // ── 소개 화면 ──────────────────────────────────────
   if (showIntro) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-lg shadow-2xl p-8">
-            <h1 className="text-4xl font-bold text-gray-800 mb-4 text-center">질문에 답하며 완성하는<br />성격의 장단점 워크북</h1>
-            <p className="text-center text-gray-600 mb-8">CareerEngineer의 3라운드 체계적 작성 시스템</p>
-            <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-6 mb-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">3라운드 작성 시스템</h2>
-              <div className="space-y-4">
-                <div className="bg-white rounded-lg p-4 border-l-4 border-purple-500">
-                  <h3 className="font-bold text-gray-800 mb-2">1라운드: 장점과 단점 기본 작성</h3>
-                  <p className="text-sm text-gray-700">Q1(장점 7문항)·Q2(단점 4문항)에 기본 답변 작성 — 성격 장단점의 뼈대</p>
-                </div>
-                <div className="bg-white rounded-lg p-4 border-l-4 border-indigo-500">
-                  <h3 className="font-bold text-gray-800 mb-2">2라운드: 부족한 질문 심화</h3>
-                  <p className="text-sm text-gray-700">답변이 얕다고 느끼는 Q를 선택 → 심화 질문으로 구체화 (1개 이상)</p>
-                </div>
-                <div className="bg-white rounded-lg p-4 border-l-4 border-pink-500">
-                  <h3 className="font-bold text-gray-800 mb-2">3라운드: 연결 및 완성</h3>
-                  <p className="text-sm text-gray-700">장점 흐름과 단점 흐름을 연결 질문으로 하나의 서사로 완성</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 mb-8">
-              <h3 className="font-bold text-gray-800 mb-3">핵심 원칙</h3>
-              <ul className="space-y-2 text-sm text-gray-700">
-                <li><strong>진정성:</strong> 3초 자가진단 통과한 내용만 (면접관이 "정말이에요?"라고 물을 때 즉답 가능한 것)</li>
-                <li><strong>구체성:</strong> 숫자, 날짜, 고유명사로 표현</li>
-                <li><strong>검증 가능성:</strong> 가족도 "맞아, 그랬지"라고 인정할 사실만</li>
-                <li><strong>연결성:</strong> 장점 형성 → 발전 → 증명 → 성과 → 기여 → 단점 인식 → 결심 → 관리 → 성장이 하나의 흐름으로</li>
-              </ul>
-            </div>
-            <div className="bg-red-50 border-2 border-red-300 rounded-lg p-6 mb-8">
-              <h3 className="font-bold text-red-800 mb-2">⚠️ 반드시 확인</h3>
-              <p className="text-sm text-red-700">작성하는 내용은 자동으로 저장되지 않으며 새로고침 시 모든 내용이 사라집니다. 마지막 페이지에서 반드시 워드 파일(.doc)로 다운로드하여 보관하세요.</p>
-            </div>
-            <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-              <p className="text-xs text-gray-800 text-center">© 2026 CareerEngineer All Rights Reserved.</p>
-              <p className="text-xs text-red-800 text-center mt-1 font-semibold">이 워크북은 저작권법에 의해 보호받는 저작물입니다. 무단 복제·배포·전송을 금합니다.</p>
-            </div>
-            <button onClick={() => setShowIntro(false)} className="w-full py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-colors font-bold text-lg">
-              1라운드 시작하기 →
-            </button>
-          </div>
-        </div>
-      </div>
+      React.createElement('div', { className: "min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8"    ,}
+        , React.createElement('div', { className: "max-w-4xl mx-auto" ,}
+          , React.createElement('div', { className: "bg-white rounded-lg shadow-2xl p-8"   ,}
+            , React.createElement('h1', { className: "text-4xl font-bold text-gray-800 mb-4 text-center"    ,}, "질문에 답하며 완성하는"  , React.createElement('br', null ), "성격의 장단점 워크북"  )
+            , React.createElement('p', { className: "text-center text-gray-600 mb-8"  ,}, "CareerEngineer의 3라운드 체계적 작성 시스템"    )
+            , React.createElement('div', { className: "bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 mb-8"     ,}
+              , React.createElement('h2', { className: "text-2xl font-bold text-gray-800 mb-4"   ,}, "3라운드 작성 시스템"  )
+              , React.createElement('div', { className: "space-y-4",}
+                , React.createElement('div', { className: "bg-white rounded-lg p-4 border-l-4 border-blue-500"    ,}
+                  , React.createElement('h3', { className: "font-bold text-gray-800 mb-2"  ,}, "1라운드: 장점과 단점 기본 작성"    )
+                  , React.createElement('p', { className: "text-sm text-gray-700" ,}, "Q1(장점 7문항)·Q2(단점 4문항)에 기본 답변 작성 — 성격 장단점의 뼈대"         )
+                )
+                , React.createElement('div', { className: "bg-white rounded-lg p-4 border-l-4 border-indigo-500"    ,}
+                  , React.createElement('h3', { className: "font-bold text-gray-800 mb-2"  ,}, "2라운드: 부족한 질문 심화"   )
+                  , React.createElement('p', { className: "text-sm text-gray-700" ,}, "답변이 얕다고 느끼는 Q를 선택 → 심화 질문으로 구체화 (1개 이상)"          )
+                )
+                , React.createElement('div', { className: "bg-white rounded-lg p-4 border-l-4 border-pink-500"    ,}
+                  , React.createElement('h3', { className: "font-bold text-gray-800 mb-2"  ,}, "3라운드: 연결 및 완성"   )
+                  , React.createElement('p', { className: "text-sm text-gray-700" ,}, "장점 흐름과 단점 흐름을 연결 질문으로 하나의 서사로 완성"        )
+                )
+              )
+            )
+            , React.createElement('div', { className: "bg-yellow-50 border-l-4 border-yellow-400 p-6 mb-8"    ,}
+              , React.createElement('h3', { className: "font-bold text-gray-800 mb-3"  ,}, "핵심 원칙" )
+              , React.createElement('ul', { className: "space-y-2 text-sm text-gray-700"  ,}
+                , React.createElement('li', null, React.createElement('strong', null, "진정성:"), " 3초 자가진단 통과한 내용만 (면접관이 \"정말이에요?\"라고 물을 때 즉답 가능한 것)"           )
+                , React.createElement('li', null, React.createElement('strong', null, "구체성:"), " 숫자, 날짜, 고유명사로 표현"    )
+                , React.createElement('li', null, React.createElement('strong', null, "검증 가능성:" ), " 가족도 \"맞아, 그랬지\"라고 인정할 사실만"     )
+                , React.createElement('li', null, React.createElement('strong', null, "연결성:"), " 장점 형성 → 발전 → 증명 → 성과 → 기여 → 단점 인식 → 결심 → 관리 → 성장이 하나의 흐름으로"                     )
+              )
+            )
+            , React.createElement('div', { className: "bg-red-50 border-2 border-red-300 rounded-lg p-6 mb-8"     ,}
+              , React.createElement('h3', { className: "font-bold text-red-800 mb-2"  ,}, "⚠️ 반드시 확인"  )
+              , React.createElement('p', { className: "text-sm text-red-700" ,}, "작성하는 내용은 자동으로 저장되지 않으며 새로고침 시 모든 내용이 사라집니다. 마지막 페이지에서 반드시 워드 파일(.doc)로 다운로드하여 보관하세요."                )
+            )
+            , React.createElement('div', { className: "bg-white rounded-lg shadow-lg p-6 mb-8"    ,}
+              , React.createElement('p', { className: "text-xs text-gray-800 text-center"  ,}, "© 2026 CareerEngineer All Rights Reserved."     )
+              , React.createElement('p', { className: "text-xs text-red-800 text-center mt-1 font-semibold"    ,}, "이 워크북은 저작권법에 의해 보호받는 저작물입니다. 무단 복제·배포·전송을 금합니다."        )
+            )
+            , React.createElement('button', { onClick: () => setShowIntro(false), className: "w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-colors font-bold text-lg"           ,}, "1라운드 시작하기 →"
+
+            )
+          )
+        )
+      )
     );
   }
 
   // ── 평가 화면 ──────────────────────────────────────
   if (currentPhase === 'evaluation') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 p-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-3xl font-bold text-gray-800 mb-4 text-center">1라운드 완료! 🎉</h2>
-            <p className="text-center text-gray-600 mb-2">부족하다고 느끼는 Q를 선택하여 2라운드에서 심화 질문에 답변하세요</p>
-            <div className="bg-amber-50 border-l-4 border-amber-400 p-4 mb-6">
-              <p className="text-sm text-amber-800"><strong>💡 선택 기준:</strong> 내 답변을 다시 읽었을 때 면접관이 "더 구체적으로 말해줄 수 있어요?"라고 물을 것 같은 Q를 선택하세요. 3초 자가진단을 통과하기 어려웠던 서브 질문이 있는 Q를 우선 선택하세요.</p>
-            </div>
-            <div className="space-y-4 mb-8">
-              {round1Steps.slice(1).map(step => {
+      React.createElement('div', { className: "min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4"    ,}
+        , React.createElement('div', { className: "max-w-4xl mx-auto" ,}
+          , React.createElement('div', { className: "bg-white rounded-lg shadow-lg p-8"   ,}
+            , React.createElement('h2', { className: "text-3xl font-bold text-gray-800 mb-4 text-center"    ,}, "1라운드 완료! 🎉"  )
+            , React.createElement('p', { className: "text-center text-gray-600 mb-2"  ,}, "부족하다고 느끼는 Q를 선택하여 2라운드에서 심화 질문에 답변하세요"       )
+            , React.createElement('div', { className: "bg-amber-50 border-l-4 border-amber-400 p-4 mb-6"    ,}
+              , React.createElement('p', { className: "text-sm text-amber-800" ,}, React.createElement('strong', null, "💡 선택 기준:"  ), " 내 답변을 다시 읽었을 때 면접관이 \"더 구체적으로 말해줄 수 있어요?\"라고 물을 것 같은 Q를 선택하세요. 3초 자가진단을 통과하기 어려웠던 서브 질문이 있는 Q를 우선 선택하세요."                          )
+            )
+            , React.createElement('div', { className: "space-y-4 mb-8" ,}
+              , round1Steps.slice(1).map(step => {
                 const isSelected = selectedSteps.includes(step.id);
                 return (
-                  <div key={step.id} className={`border-2 rounded-lg p-5 transition-all ${isSelected ? 'border-purple-500 bg-purple-50' : 'border-gray-200 bg-white hover:border-purple-300'}`}>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className="font-bold text-gray-800 mb-1">{step.title}</h3>
-                        <p className="text-sm text-gray-600 mb-2">{step.subtitle}</p>
-                        <div className="bg-gray-50 rounded p-3 text-sm text-gray-700">
-                          <strong>첫 번째 답변:</strong> {answers[step.questions[0].id]?.substring(0, 100) || '(답변 없음)'}
-                          {(answers[step.questions[0].id]?.length || 0) > 100 && '...'}
-                        </div>
-                      </div>
-                      <button onClick={() => toggleStepSelection(step.id)}
-                        className={`ml-4 px-4 py-2 rounded-lg font-semibold transition-colors ${isSelected ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>
-                        {isSelected ? '✓ 선택됨' : '심화 선택'}
-                      </button>
-                    </div>
-                  </div>
+                  React.createElement('div', { key: step.id, className: `border-2 rounded-lg p-5 transition-all ${isSelected ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 bg-white hover:border-indigo-300'}`,}
+                    , React.createElement('div', { className: "flex items-start justify-between"  ,}
+                      , React.createElement('div', { className: "flex-1",}
+                        , React.createElement('h3', { className: "font-bold text-gray-800 mb-1"  ,}, step.title)
+                        , React.createElement('p', { className: "text-sm text-gray-600 mb-2"  ,}, step.subtitle)
+                        , React.createElement('div', { className: "bg-gray-50 rounded p-3 text-sm text-gray-700"    ,}
+                          , React.createElement('strong', null, "첫 번째 답변:"  ), " " , _optionalChain([answers, 'access', _ => _[step.questions[0].id], 'optionalAccess', _2 => _2.substring, 'call', _3 => _3(0, 100)]) || '(답변 없음)'
+                          , (_optionalChain([answers, 'access', _4 => _4[step.questions[0].id], 'optionalAccess', _5 => _5.length]) || 0) > 100 && '...'
+                        )
+                      )
+                      , React.createElement('button', { onClick: () => toggleStepSelection(step.id),
+                        className: `ml-4 px-4 py-2 rounded-lg font-semibold transition-colors ${isSelected ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`,}
+                        , isSelected ? '✓ 선택됨' : '심화 선택'
+                      )
+                    )
+                  )
                 );
-              })}
-            </div>
-            <div className="flex gap-4">
-              <button onClick={goToPrevStep} className="flex items-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium">
-                <ChevronLeft className="w-5 h-5" />이전
-              </button>
-              <button onClick={goToNextStep} disabled={!canGoNext()}
-                className="flex-1 py-4 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-lg">
-                2라운드 시작하기 ({selectedSteps.length}개 선택됨)
-              </button>
-            </div>
-          </div>
-          <div className="text-center mt-6"><p className="text-xs text-gray-500">© 2026 CareerEngineer All Rights Reserved.</p></div>
-        </div>
-      </div>
+              })
+            )
+            , React.createElement('div', { className: "flex gap-4" ,}
+              , React.createElement('button', { onClick: goToPrevStep, className: "flex items-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium"         ,}
+                , React.createElement(ChevronLeft, { className: "w-5 h-5" ,} ), "이전"
+              )
+              , React.createElement('button', { onClick: goToNextStep, disabled: !canGoNext(),
+                className: "flex-1 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-lg"         ,}, "2라운드 시작하기 ("
+                  , selectedSteps.length, "개 선택됨)"
+              )
+            )
+          )
+          , React.createElement('div', { className: "text-center mt-6" ,}, React.createElement('p', { className: "text-xs text-gray-500" ,}, "© 2026 CareerEngineer All Rights Reserved."     ))
+        )
+      )
     );
   }
 
   // ── 완성 화면 ──────────────────────────────────────
   if (currentPhase === 'completed') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 p-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4">
-                <Check className="w-10 h-10 text-green-600" />
-              </div>
-              <h2 className="text-3xl font-bold text-gray-800 mb-2">성격의 장단점 완성! 🎉</h2>
-              <p className="text-gray-600">아래 내용을 확인하고 자유롭게 수정하세요</p>
-            </div>
+      React.createElement('div', { className: "min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4"    ,}
+        , React.createElement('div', { className: "max-w-4xl mx-auto" ,}
+          , React.createElement('div', { className: "bg-white rounded-lg shadow-lg p-8"   ,}
+            , React.createElement('div', { className: "text-center mb-8" ,}
+              , React.createElement('div', { className: "inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4"       ,}
+                , React.createElement(Check, { className: "w-10 h-10 text-green-600"  ,} )
+              )
+              , React.createElement('h2', { className: "text-3xl font-bold text-gray-800 mb-2"   ,}, "성격의 장단점 완성! 🎉"   )
+              , React.createElement('p', { className: "text-gray-600",}, "아래 내용을 확인하고 자유롭게 수정하세요"    )
+            )
 
-            {/* 첫 문장 가이드 */}
-            <div className="bg-amber-50 border-2 border-amber-300 rounded-lg p-5 mb-6">
-              <h3 className="font-bold text-amber-800 mb-3">💡 완성 전 첫 문장 확인</h3>
-              <p className="text-sm text-amber-700 mb-2">첫 문장은 전체 글의 주제를 담아야 합니다. 아래 구조로 시작하세요:</p>
-              <p className="text-sm text-amber-900 font-medium">[장점 + 형성 계기]로 시작 → [발전 의지 + 지속성 증거] → [성과] → [직무 기여] → [단점 인식 + 결심] → [관리 + 성장]으로 마무리</p>
-              <div className="mt-3 pt-3 border-t border-amber-200">
-                <p className="text-xs text-amber-700"><strong>⚠️ 피하세요:</strong> "저는 성격이 좋습니다" / "완벽주의가 단점입니다" / 마지막을 "더 노력하겠습니다"로 끝내는 것</p>
-              </div>
-            </div>
+            /* 첫 문장 가이드 */
+            , React.createElement('div', { className: "bg-amber-50 border-2 border-amber-300 rounded-lg p-5 mb-6"     ,}
+              , React.createElement('h3', { className: "font-bold text-amber-800 mb-3"  ,}, "💡 완성 전 첫 문장 확인"     )
+              , React.createElement('p', { className: "text-sm text-amber-700 mb-2"  ,}, "첫 문장은 전체 글의 주제를 담아야 합니다. 아래 구조로 시작하세요:"         )
+              , React.createElement('p', { className: "text-sm text-amber-900 font-medium"  ,}, "[장점 + 형성 계기]로 시작 → [발전 의지 + 지속성 증거] → [성과] → [직무 기여] → [단점 인식 + 결심] → [관리 + 성장]으로 마무리"                         )
+              , React.createElement('div', { className: "mt-3 pt-3 border-t border-amber-200"   ,}
+                , React.createElement('p', { className: "text-xs text-amber-700" ,}, React.createElement('strong', null, "⚠️ 피하세요:" ), " \"저는 성격이 좋습니다\" / \"완벽주의가 단점입니다\" / 마지막을 \"더 노력하겠습니다\"로 끝내는 것"            )
+              )
+            )
 
-            {/* 단락별 활용 가이드 */}
-            <div className="bg-purple-50 border border-purple-200 rounded-lg p-5 mb-6">
-              <h3 className="font-bold text-purple-800 mb-3">📋 3라운드 답변 활용 가이드</h3>
-              <div className="space-y-2 text-sm text-purple-700">
-                <p><strong>1단락 (장점 핵심):</strong> 연결①→③ 답변 — 장점 + 형성 계기 + 발전 의지</p>
-                <p><strong>2단락 (장점 증명):</strong> 연결④→⑤ 답변 — 지속성 증거 + STAR 성과</p>
-                <p><strong>3단락 (직무 기여):</strong> 연결⑥→⑦ 답변 — 직무 연결 + 기여 방식</p>
-                <p><strong>4단락 (단점 전환):</strong> 연결⑦→⑨ 답변 — 단점 인식 + 결심 계기</p>
-                <p><strong>5단락 (성장 마무리):</strong> 연결⑩→⑪ 답변 — 현재 관리 + 성장 증거 + 직무 연결</p>
-              </div>
-            </div>
+            /* 단락별 활용 가이드 */
+            , React.createElement('div', { className: "bg-purple-50 border border-purple-200 rounded-lg p-5 mb-6"     ,}
+              , React.createElement('h3', { className: "font-bold text-purple-800 mb-3"  ,}, "📋 3라운드 답변 활용 가이드"    )
+              , React.createElement('div', { className: "space-y-2 text-sm text-purple-700"  ,}
+                , React.createElement('p', null, React.createElement('strong', null, "1단락 (장점 핵심):"  ), " 연결①→③ 답변 — 장점 + 형성 계기 + 발전 의지"          )
+                , React.createElement('p', null, React.createElement('strong', null, "2단락 (장점 증명):"  ), " 연결④→⑤ 답변 — 지속성 증거 + STAR 성과"        )
+                , React.createElement('p', null, React.createElement('strong', null, "3단락 (직무 기여):"  ), " 연결⑥→⑦ 답변 — 직무 연결 + 기여 방식"        )
+                , React.createElement('p', null, React.createElement('strong', null, "4단락 (단점 전환):"  ), " 연결⑦→⑨ 답변 — 단점 인식 + 결심 계기"        )
+                , React.createElement('p', null, React.createElement('strong', null, "5단락 (성장 마무리):"  ), " 연결⑩→⑪ 답변 — 현재 관리 + 성장 증거 + 직무 연결"           )
+              )
+            )
 
-            {/* 수정 전 최종 확인 */}
-            <div className="bg-green-50 border border-green-200 rounded-lg p-5 mb-6">
-              <h3 className="font-bold text-green-800 mb-3">✅ 수정 전 최종 확인</h3>
-              <div className="space-y-1 text-sm text-green-700">
-                <p>□ 장점 → 형성 계기 → 발전 의지 → 지속성 증거 → 성과 → 직무 기여가 하나의 흐름인가?</p>
-                <p>□ 단점이 장점의 이면으로 자연스럽게 연결되는가?</p>
-                <p>□ 고쳐야겠다는 결심이 실제 경험(내가 힘들었거나 타인에게 불편을 끼친)에서 나오는가?</p>
-                <p>□ 보완 관리가 오늘도 실행 중인 구체적 행동인가? ("노력 중"이 아닌가?)</p>
-                <p>□ 마지막이 "더 노력하겠습니다"가 아닌 성장 방향과 직무 연결인가?</p>
-              </div>
-            </div>
+            /* 수정 전 최종 확인 */
+            , React.createElement('div', { className: "bg-green-50 border border-green-200 rounded-lg p-5 mb-6"     ,}
+              , React.createElement('h3', { className: "font-bold text-green-800 mb-3"  ,}, "✅ 수정 전 최종 확인"    )
+              , React.createElement('div', { className: "space-y-1 text-sm text-green-700"  ,}
+                , React.createElement('p', null, "□ 장점 → 형성 계기 → 발전 의지 → 지속성 증거 → 성과 → 직무 기여가 하나의 흐름인가?"                 )
+                , React.createElement('p', null, "□ 단점이 장점의 이면으로 자연스럽게 연결되는가?"     )
+                , React.createElement('p', null, "□ 고쳐야겠다는 결심이 실제 경험(내가 힘들었거나 타인에게 불편을 끼친)에서 나오는가?"         )
+                , React.createElement('p', null, "□ 보완 관리가 오늘도 실행 중인 구체적 행동인가? (\"노력 중\"이 아닌가?)"          )
+                , React.createElement('p', null, "□ 마지막이 \"더 노력하겠습니다\"가 아닌 성장 방향과 직무 연결인가?"        )
+              )
+            )
 
-            <div className="bg-red-100 border-2 border-red-500 rounded-lg p-5 mb-6">
-              <div className="flex items-start gap-3">
-                <span className="text-3xl">⚠️</span>
-                <div>
-                  <p className="text-base font-bold text-red-900 mb-2">반드시 다운로드하세요!</p>
-                  <p className="text-sm text-red-800">페이지를 새로고침하거나 닫으면 <strong>모든 내용이 즉시 삭제</strong>됩니다. <strong>내용 수정 후 "워드 파일로 다운로드"</strong> 버튼을 눌러 저장하세요!</p>
-                </div>
-              </div>
-            </div>
+            , React.createElement('div', { className: "bg-red-100 border-2 border-red-500 rounded-lg p-5 mb-6"     ,}
+              , React.createElement('div', { className: "flex items-start gap-3"  ,}
+                , React.createElement('span', { className: "text-3xl",}, "⚠️")
+                , React.createElement('div', null
+                  , React.createElement('p', { className: "text-base font-bold text-red-900 mb-2"   ,}, "반드시 다운로드하세요!" )
+                  , React.createElement('p', { className: "text-sm text-red-800" ,}, "페이지를 새로고침하거나 닫으면 "   , React.createElement('strong', null, "모든 내용이 즉시 삭제"   ), "됩니다. " , React.createElement('strong', null, "내용 수정 후 \"워드 파일로 다운로드\""     ), " 버튼을 눌러 저장하세요!"   )
+                )
+              )
+            )
 
-            <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border-2 border-purple-200 rounded-lg p-5 mb-6">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                  <Edit3 className="w-5 h-5 text-purple-600" />완성된 성격의 장단점 (수정 가능)
-                </h3>
-                <button onClick={() => setShowRawAnswers(!showRawAnswers)} className="text-sm text-gray-600 hover:text-gray-800 flex items-center gap-1">
-                  <Eye className="w-4 h-4" />{showRawAnswers ? '원본 답변 숨기기' : '원본 답변 보기'}
-                </button>
-              </div>
-              <textarea value={finalText} onChange={e => setFinalText(e.target.value)} rows={20}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 resize-none font-serif leading-relaxed" />
-            </div>
+            , React.createElement('div', { className: "bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg p-5 mb-6"       ,}
+              , React.createElement('div', { className: "flex items-center justify-between mb-3"   ,}
+                , React.createElement('h3', { className: "text-lg font-bold text-gray-800 flex items-center gap-2"     ,}
+                  , React.createElement(Edit3, { className: "w-5 h-5 text-blue-600"  ,} ), "완성된 성격의 장단점 (수정 가능)"
+                )
+                , React.createElement('button', { onClick: () => setShowRawAnswers(!showRawAnswers), className: "text-sm text-gray-600 hover:text-gray-800 flex items-center gap-1"     ,}
+                  , React.createElement(Eye, { className: "w-4 h-4" ,} ), showRawAnswers ? '원본 답변 숨기기' : '원본 답변 보기'
+                )
+              )
+              , React.createElement('textarea', { value: finalText, onChange: e => setFinalText(e.target.value), rows: 20,
+                className: "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 resize-none font-serif leading-relaxed"          ,} )
+            )
 
-            {showRawAnswers && (
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
-                <h4 className="font-semibold text-gray-800 mb-3">📋 원본 답변 참고</h4>
-                <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans">{getRawAnswersText()}</pre>
-              </div>
-            )}
+            , showRawAnswers && (
+              React.createElement('div', { className: "bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6"     ,}
+                , React.createElement('h4', { className: "font-semibold text-gray-800 mb-3"  ,}, "📋 원본 답변 참고"   )
+                , React.createElement('pre', { className: "text-sm text-gray-700 whitespace-pre-wrap font-sans"   ,}, getRawAnswersText())
+              )
+            )
 
-            <button onClick={downloadFinalText} className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 font-semibold text-lg shadow-lg mb-4">
-              <Download className="w-6 h-6" />워드 파일로 다운로드 (.doc)
-            </button>
+            , React.createElement('button', { onClick: downloadFinalText, className: "w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 font-semibold text-lg shadow-lg mb-4"                 ,}
+              , React.createElement(Download, { className: "w-6 h-6" ,} ), "워드 파일로 다운로드 (.doc)"
+            )
 
-            {downloadSuccess && (
-              <div className="bg-green-100 border-2 border-green-500 rounded-lg p-4 text-center mb-4">
-                <p className="text-green-800 font-semibold">✅ 다운로드 완료!</p>
-                <p className="text-sm text-green-700 mt-1">다운로드 폴더에서 "{basicInfo.company || '회사'}_성격의_장단점.doc" 파일을 Microsoft Word로 열어주세요.</p>
-              </div>
-            )}
+            , downloadSuccess && (
+              React.createElement('div', { className: "bg-green-100 border-2 border-green-500 rounded-lg p-4 text-center mb-4"      ,}
+                , React.createElement('p', { className: "text-green-800 font-semibold" ,}, "✅ 다운로드 완료!"  )
+                , React.createElement('p', { className: "text-sm text-green-700 mt-1"  ,}, "다운로드 폴더에서 \""  , basicInfo.company || '회사', "_성격의_장단점.doc\" 파일을 Microsoft Word로 열어주세요."    )
+              )
+            )
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center mb-4">
-              <p className="text-sm text-blue-800">💾 <strong>워드에서 편집 가능:</strong> 다운로드한 .doc 파일을 Microsoft Word에서 열어 자유롭게 편집하고 서식을 적용할 수 있습니다.</p>
-            </div>
+            , React.createElement('div', { className: "bg-blue-50 border border-blue-200 rounded-lg p-4 text-center mb-4"      ,}
+              , React.createElement('p', { className: "text-sm text-blue-800" ,}, "💾 " , React.createElement('strong', null, "워드에서 편집 가능:"  ), " 다운로드한 .doc 파일을 Microsoft Word에서 열어 자유롭게 편집하고 서식을 적용할 수 있습니다."            )
+            )
 
-            <div className="flex gap-4 mt-4">
-              <button onClick={goToPrevStep} className="flex items-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium">
-                <ChevronLeft className="w-5 h-5" />이전으로
-              </button>
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow-lg p-6 mt-6">
-            <p className="text-xs text-gray-800 text-center">© 2026 CareerEngineer All Rights Reserved.</p>
-            <p className="text-xs text-red-800 text-center mt-1 font-semibold">이 워크북은 저작권법에 의해 보호받는 저작물입니다. 무단 복제·배포·전송을 금합니다.</p>
-          </div>
-        </div>
-      </div>
+            , React.createElement('div', { className: "flex gap-4 mt-4"  ,}
+              , React.createElement('button', { onClick: goToPrevStep, className: "flex items-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium"         ,}
+                , React.createElement(ChevronLeft, { className: "w-5 h-5" ,} ), "이전으로"
+              )
+            )
+          )
+          , React.createElement('div', { className: "bg-white rounded-lg shadow-lg p-6 mt-6"    ,}
+            , React.createElement('p', { className: "text-xs text-gray-800 text-center"  ,}, "© 2026 CareerEngineer All Rights Reserved."     )
+            , React.createElement('p', { className: "text-xs text-red-800 text-center mt-1 font-semibold"    ,}, "이 워크북은 저작권법에 의해 보호받는 저작물입니다. 무단 복제·배포·전송을 금합니다."        )
+          )
+        )
+      )
     );
   }
 
@@ -806,135 +808,134 @@ const PersonalityWorkbook = () => {
   const currentStepData = currentPhase === 'round1'
     ? round1Steps[currentStep]
     : currentPhase === 'round2'
-    ? { title: `${round1Steps[selectedSteps[currentStep]].title} — 심화`, questions: round2Questions[selectedSteps[currentStep]] }
+    ? { title: `${round1Steps[selectedSteps[currentStep]].title} - 심화`, questions: round2Questions[selectedSteps[currentStep]] }
     : { title: '3라운드: 연결 및 완성', questions: [round3Questions[currentStep]] };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 p-4">
-      <div className="max-w-4xl mx-auto">
-        {/* 헤더 */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">CareerEngineer 성격의 장단점 워크북</h1>
-          <p className="text-gray-600">체계적인 3라운드 시스템으로 완성하는 성격의 장단점</p>
-          <div className="mt-4">
-            <div className="flex justify-between text-sm text-gray-600 mb-2">
-              <span>{currentPhase === 'round1' ? '1라운드' : currentPhase === 'round2' ? '2라운드' : '3라운드'} — {currentStepData.title}</span>
-              <span>전체 진행률: {Math.round(progress)}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
-              <div className="bg-gradient-to-r from-purple-500 to-indigo-600 h-3 rounded-full transition-all duration-500" style={{ width: progress + '%' }} />
-            </div>
-          </div>
-        </div>
+    React.createElement('div', { className: "min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4"    ,}
+      , React.createElement('div', { className: "max-w-4xl mx-auto" ,}
+        /* 헤더 */
+        , React.createElement('div', { className: "bg-white rounded-lg shadow-lg p-6 mb-6"    ,}
+          , React.createElement('h1', { className: "text-3xl font-bold text-gray-800 mb-2"   ,}, "CareerEngineer 성격의 장단점 워크북"   )
+          , React.createElement('p', { className: "text-gray-600",}, "체계적인 3라운드 시스템으로 완성하는 성격의 장단점"     )
+          , React.createElement('div', { className: "mt-4",}
+            , React.createElement('div', { className: "flex justify-between text-sm text-gray-600 mb-2"    ,}
+              , React.createElement('span', null, currentPhase === 'round1' ? '1라운드' : currentPhase === 'round2' ? '2라운드' : '3라운드', " — "  , currentStepData.title)
+              , React.createElement('span', null, "전체 진행률: "  , Math.round(progress), "%")
+            )
+            , React.createElement('div', { className: "w-full bg-gray-200 rounded-full h-3"   ,}
+              , React.createElement('div', { className: "bg-gradient-to-r from-blue-500 to-indigo-600 h-3 rounded-full transition-all duration-500"      , style: { width: progress + '%' },} )
+            )
+          )
+        )
 
-        {/* 질문 카드 */}
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">{currentStepData.title}</h2>
-          {currentStepData.subtitle && <p className="text-gray-600 mb-6">{currentStepData.subtitle}</p>}
+        /* 질문 카드 */
+        , React.createElement('div', { className: "bg-white rounded-lg shadow-lg p-8"   ,}
+          , React.createElement('h2', { className: "text-2xl font-bold text-gray-800 mb-2"   ,}, currentStepData.title)
+          , (currentStepData ).subtitle && React.createElement('p', { className: "text-gray-600 mb-6" ,}, (currentStepData ).subtitle)
 
-          {currentStep === 0 && currentPhase === 'round1' ? (
-            <div className="space-y-4">
-              {[['industry','지원하고자 하는 산업','예: IT, 금융, 제조, 유통 등'],
-                ['position','지원하고자 하는 직무','예: 마케팅, 개발, 기획, 영업 등'],
+          , currentStep === 0 && currentPhase === 'round1' ? (
+            React.createElement('div', { className: "space-y-4",}
+              , [['position','지원하고자 하는 직무','예: 마케팅, 개발, 기획, 영업 등'],
                 ['company','지원하고자 하는 회사명','예: 삼성전자, 네이버, 카카오 등']
               ].map(([field, label, ph]) => (
-                <div key={field}>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">{label}</label>
-                  <input type="text" value={basicInfo[field]} onChange={e => handleBasicInfoChange(field, e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder={ph} />
-                </div>
-              ))}
-            </div>
+                React.createElement('div', { key: field,}
+                  , React.createElement('label', { className: "block text-sm font-semibold text-gray-700 mb-2"    ,}, label)
+                  , React.createElement('input', { type: "text", value: (basicInfo )[field], onChange: e => handleBasicInfoChange(field, e.target.value),
+                    className: "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"       , placeholder: ph,} )
+                )
+              ))
+            )
           ) : (
-            <div className="space-y-6">
-              {currentStepData.questions.map((q) => (
-                <div key={q.id} className="mb-6 border-b border-gray-200 pb-6 last:border-b-0">
-                  <div className="flex items-start justify-between mb-2">
-                    <label className="text-lg font-semibold text-gray-800">{q.label}</label>
-                    {q.guide && (
-                      <button onClick={() => toggleGuide(q.id)} className="flex items-center gap-1 text-sm text-purple-600 hover:text-purple-800">
-                        <HelpCircle className="w-4 h-4" />{showGuide[q.id] ? '가이드 숨기기' : '가이드 보기'}
-                      </button>
-                    )}
-                  </div>
+            React.createElement('div', { className: "space-y-6",}
+              , (currentStepData.questions ).map((q) => (
+                React.createElement('div', { key: q.id, className: "mb-6 border-b border-gray-200 pb-6 last:border-b-0"    ,}
+                  , React.createElement('div', { className: "flex items-start justify-between mb-2"   ,}
+                    , React.createElement('label', { className: "text-lg font-semibold text-gray-800"  ,}, q.label)
+                    , q.guide && (
+                      React.createElement('button', { onClick: () => toggleGuide(q.id), className: "flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"     ,}
+                        , React.createElement(HelpCircle, { className: "w-4 h-4" ,} ), showGuide[q.id] ? '가이드 숨기기' : '가이드 보기'
+                      )
+                    )
+                  )
 
-                  {q.hint && <p className="text-sm text-gray-600 mb-2">💡 {q.hint}</p>}
+                  , q.hint && React.createElement('p', { className: "text-sm text-gray-600 mb-2"  ,}, "💡 " , q.hint)
 
-                  {/* round3 참조 답변 */}
-                  {q.referenceQuestions && (
-                    <div className="bg-purple-50 border-l-4 border-purple-400 p-4 mb-3">
-                      <p className="text-sm font-semibold text-purple-900 mb-2">📚 참고: 이전 답변을 활용하세요</p>
-                      <div className="space-y-3">
-                        {q.referenceQuestions.map((refId) => {
-                          const allQ = round1Steps.flatMap(s => s.questions || []);
+                  /* round3 참조 답변 */
+                  , q.referenceQuestions && (
+                    React.createElement('div', { className: "bg-indigo-50 border-l-4 border-indigo-400 p-4 mb-3"    ,}
+                      , React.createElement('p', { className: "text-sm font-semibold text-indigo-900 mb-2"   ,}, "📚 참고: 이전 답변을 활용하세요"    )
+                      , React.createElement('div', { className: "space-y-3",}
+                        , q.referenceQuestions.map((refId) => {
+                          const allQ = round1Steps.flatMap(s => (s ).questions || []);
                           const refQ = allQ.find((q) => q.id === refId);
                           if (!refQ || !answers[refId]) return null;
                           return (
-                            <div key={refId} className="bg-white p-3 rounded text-sm">
-                              <p className="font-semibold text-gray-700 mb-1">{refQ.label}</p>
-                              <p className="text-gray-600 italic">{answers[refId].substring(0,150)}{answers[refId].length > 150 ? '...' : ''}</p>
-                            </div>
+                            React.createElement('div', { key: refId, className: "bg-white p-3 rounded text-sm"   ,}
+                              , React.createElement('p', { className: "font-semibold text-gray-700 mb-1"  ,}, refQ.label)
+                              , React.createElement('p', { className: "text-gray-600 italic" ,}, answers[refId].substring(0,150), answers[refId].length > 150 ? '...' : '')
+                            )
                           );
-                        })}
-                      </div>
-                    </div>
-                  )}
+                        })
+                      )
+                    )
+                  )
 
-                  {/* 가이드 */}
-                  {q.guide && showGuide[q.id] && (
-                    <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-3 space-y-3">
-                      <p className="text-sm font-semibold text-blue-900">📝 {q.guide.description}</p>
-                      <p className="text-sm font-semibold text-blue-900">🎯 {q.guide.diagnosis}</p>
-                      {q.guide.helpQuestions && (
-                        <div>
-                          <p className="text-sm font-semibold text-blue-900 mb-1">❓ 구체화 도움 질문:</p>
-                          <ul className="text-sm text-blue-800 space-y-1 ml-4">
-                            {q.guide.helpQuestions.map((hq, i) => <li key={i}>• {hq}</li>)}
-                          </ul>
-                        </div>
-                      )}
-                      {q.guide.ifDifficult && (
-                        <div>
-                          <p className="text-sm font-semibold text-blue-900 mb-1">💭 답변하기 어렵다면:</p>
-                          <p className="text-sm text-blue-800">{q.guide.ifDifficult}</p>
-                        </div>
-                      )}
-                      {q.guide.ifStillDifficult && (
-                        <div>
-                          <p className="text-sm font-semibold text-blue-900 mb-1">💡 그래도 어렵다면:</p>
-                          <p className="text-sm text-blue-800">{q.guide.ifStillDifficult}</p>
-                        </div>
-                      )}
-                      {q.guide.warning && (
-                        <div className="bg-red-50 border border-red-200 rounded p-2">
-                          <p className="text-sm text-red-700">⚠️ {q.guide.warning}</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  /* 가이드 */
+                  , q.guide && showGuide[q.id] && (
+                    React.createElement('div', { className: "bg-blue-50 border-l-4 border-blue-400 p-4 mb-3 space-y-3"     ,}
+                      , React.createElement('p', { className: "text-sm font-semibold text-blue-900"  ,}, "📝 " , q.guide.description)
+                      , React.createElement('p', { className: "text-sm font-semibold text-blue-900"  ,}, "🎯 " , q.guide.diagnosis)
+                      , q.guide.helpQuestions && (
+                        React.createElement('div', null
+                          , React.createElement('p', { className: "text-sm font-semibold text-blue-900 mb-1"   ,}, "❓ 구체화 도움 질문:"   )
+                          , React.createElement('ul', { className: "text-sm text-blue-800 space-y-1 ml-4"   ,}
+                            , q.guide.helpQuestions.map((hq, i) => React.createElement('li', { key: i,}, "• " , hq))
+                          )
+                        )
+                      )
+                      , q.guide.ifDifficult && (
+                        React.createElement('div', null
+                          , React.createElement('p', { className: "text-sm font-semibold text-blue-900 mb-1"   ,}, "💭 답변하기 어렵다면:"  )
+                          , React.createElement('p', { className: "text-sm text-blue-800" ,}, q.guide.ifDifficult)
+                        )
+                      )
+                      , q.guide.ifStillDifficult && (
+                        React.createElement('div', null
+                          , React.createElement('p', { className: "text-sm font-semibold text-blue-900 mb-1"   ,}, "💡 그래도 어렵다면:"  )
+                          , React.createElement('p', { className: "text-sm text-blue-800" ,}, q.guide.ifStillDifficult)
+                        )
+                      )
+                      , q.guide.warning && (
+                        React.createElement('div', { className: "bg-red-50 border border-red-200 rounded p-2"    ,}
+                          , React.createElement('p', { className: "text-sm text-red-700" ,}, "⚠️ " , q.guide.warning)
+                        )
+                      )
+                    )
+                  )
 
-                  <textarea value={answers[q.id] || ''} onChange={e => handleAnswerChange(q.id, e.target.value)}
-                    rows={q.rows || 3} placeholder={q.placeholder}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 resize-none" />
-                </div>
-              ))}
-            </div>
-          )}
+                  , React.createElement('textarea', { value: answers[q.id] || '', onChange: e => handleAnswerChange(q.id, e.target.value),
+                    rows: q.rows || 3, placeholder: q.placeholder,
+                    className: "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 resize-none"        ,} )
+                )
+              ))
+            )
+          )
 
-          <div className="flex gap-4 mt-8">
-            <button onClick={goToPrevStep} className="flex items-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium">
-              <ChevronLeft className="w-5 h-5" />이전
-            </button>
-            <button onClick={goToNextStep} disabled={!canGoNext()}
-              className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold">
-              다음<ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
+          , React.createElement('div', { className: "flex gap-4 mt-8"  ,}
+            , React.createElement('button', { onClick: goToPrevStep, className: "flex items-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium"         ,}
+              , React.createElement(ChevronLeft, { className: "w-5 h-5" ,} ), "이전"
+            )
+            , React.createElement('button', { onClick: goToNextStep, disabled: !canGoNext(),
+              className: "flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold"             ,}, "다음"
+              , React.createElement(ChevronRight, { className: "w-5 h-5" ,} )
+            )
+          )
+        )
 
-        <div className="text-center mt-6"><p className="text-xs text-gray-500">© 2026 CareerEngineer All Rights Reserved.</p></div>
-      </div>
-    </div>
+        , React.createElement('div', { className: "text-center mt-6" ,}, React.createElement('p', { className: "text-xs text-gray-500" ,}, "© 2026 CareerEngineer All Rights Reserved."     ))
+      )
+    )
   );
 };
 
