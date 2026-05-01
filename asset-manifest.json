@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/personality_workbook/static/css/main.47620019.css",
+    "main.js": "/personality_workbook/static/js/main.13078bde.js",
+    "static/js/453.32a3ca24.chunk.js": "/personality_workbook/static/js/453.32a3ca24.chunk.js",
+    "index.html": "/personality_workbook/index.html",
+    "main.47620019.css.map": "/personality_workbook/static/css/main.47620019.css.map",
+    "main.13078bde.js.map": "/personality_workbook/static/js/main.13078bde.js.map",
+    "453.32a3ca24.chunk.js.map": "/personality_workbook/static/js/453.32a3ca24.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.47620019.css",
+    "static/js/main.13078bde.js"
+  ]
+}
