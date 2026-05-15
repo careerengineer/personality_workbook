@@ -724,7 +724,7 @@ const PersonalityWorkbook = () => {
   const loadDocxLib = () => new Promise((resolve, reject) => {
     if (window.docx) return resolve(window.docx);
     const script = document.createElement('script');
-    script.src = 'https://unpkg.com/docx@9.6.1/build/index.umd.min.js';
+    script.src = 'https://unpkg.com/docx@9.6.1/dist/index.iife.js';
     script.onload = () => {
       if (window.docx) resolve(window.docx);
       else reject(new Error('docx 라이브러리 로드 실패'));
